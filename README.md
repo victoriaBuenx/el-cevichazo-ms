@@ -52,5 +52,5 @@ el-cevichazo-ms/
 
 ## 📜 License
 ```
-Distributed under the MIT License. Created as a Professional Residency Project at **Instituto Tecnológico de Durango** (2026)[cite: 1].
+Distributed under the MIT License. Created as a Professional Residency Project at Instituto Tecnológico de Durango (2026).
 ```
