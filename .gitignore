@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Next.js
+.next/
+out/
+
+# Build output
+dist/
+build/
+
+# .NET
+bin/
+obj/
+
+# Visual Studio / Rider
+.vs/
+.idea/
+
+# OS
+.DS_Store
+
+# Logs
+*.log
+
+# Test results
+TestResults/
+
+# User-specific files
+*.user
+*.suo
