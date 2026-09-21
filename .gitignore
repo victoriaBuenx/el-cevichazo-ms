@@ -18,6 +18,7 @@ build/
 # .NET
 bin/
 obj/
+**/appsettings.Development.json
 
 # Visual Studio / Rider
 .vs/
