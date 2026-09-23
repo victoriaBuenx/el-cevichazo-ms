@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-namespace ElCevichazo.Infrastructure.database;
+namespace ElCevichazo.Infrastructure.Database;
 public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) 

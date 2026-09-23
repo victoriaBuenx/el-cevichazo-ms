@@ -1,4 +1,4 @@
-using ElCevichazo.Infrastructure.database;
+using ElCevichazo.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
