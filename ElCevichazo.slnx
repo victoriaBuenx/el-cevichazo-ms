@@ -6,4 +6,7 @@
     <Project Path="apps/backend/ElCevichazo.Domain/ElCevichazo.Domain.csproj" />
     <Project Path="apps/backend/ElCevichazo.Infrastructure/ElCevichazo.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ElCevichazo.Tests/ElCevichazo.Tests.csproj" />
+  </Folder>
 </Solution>
