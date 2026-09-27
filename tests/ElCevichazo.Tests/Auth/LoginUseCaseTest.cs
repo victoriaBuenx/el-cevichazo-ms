@@ -8,7 +8,7 @@ using Moq;
 
 namespace ElCevichazo.Tests.Auth;   
 
-public class LoginUseCaseTests
+public class LoginUseCaseTest
 {
     private readonly Mock<IUserRepository> _userRepositoryMock = new();
     private readonly Mock<IPasswordHasher> _passwordHasherMock = new();
