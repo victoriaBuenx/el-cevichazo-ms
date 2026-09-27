@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ElCevichazo.Infrastructure.Repositories;
 
-public class UserRespository : IUserRepository
+public class UserRepository : IUserRepository
 {
     private readonly AppDbContext _dbContext;
-    public UserRespository(AppDbContext dbContext)
+    public UserRepository(AppDbContext dbContext)
     {
         _dbContext = dbContext;
     }
@@ -16,5 +16,10 @@ public class UserRespository : IUserRepository
     public async Task<User?> GetByEmailAsync(string email)
     {
         return await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
+    }
+    public async Task AddAsync(User user)
+    {
+        await _dbContext.Users.AddAsync(user);
+        await _dbContext.SaveChangesAsync();
     }
 }
