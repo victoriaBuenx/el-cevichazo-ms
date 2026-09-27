@@ -1,6 +1,8 @@
 using ElCevichazo.Application.Auth.UseCases;
 using Microsoft.AspNetCore.Mvc;
 using ElCevichazo.Application.Auth.DTOs;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 namespace ElCevichazo.Api.Controllers;
 
 
@@ -39,5 +41,16 @@ public class AuthController : ControllerBase
         return StatusCode(StatusCodes.Status201Created, response);
     }
 
-
+    [HttpGet("me")]
+    [Authorize]
+    public IActionResult Me()
+    {
+        return Ok(new
+        {
+            message = "Token válido.",
+            userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
+            email = User.FindFirst(ClaimTypes.Email)?.Value,
+            role = User.FindFirst(ClaimTypes.Role)?.Value
+        });
+    }
 }
