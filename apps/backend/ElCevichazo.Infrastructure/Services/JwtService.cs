@@ -18,7 +18,7 @@ public class JwtService : IJwtService
 
     public string GenerateAccessToken(Guid userId, string email, string role)
     {
-        var secretKey = _configuration["Jwt:SecretKey"]
+        var secretKey = _configuration["Jwt:Secret"]
             ?? throw new InvalidOperationException("JWT secret key is not configured.");
 
         var issuer = _configuration["Jwt:Issuer"]
@@ -27,14 +27,14 @@ public class JwtService : IJwtService
         var audience = _configuration["Jwt:Audience"]
             ?? throw new InvalidOperationException("JWT audience is not configured.");
 
-        var expirationMinutes = int.Parse(_configuration["Jwt:AccessTokenExpirationMinutes"] ?? "15");
+        var expirationMinutes = int.Parse(_configuration["Jwt:ExpirationMinutes"] ?? "15");
 
 
         var claims = new[]
         {
-            new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, email),
-            new Claim(ClaimTypes.Role, role),
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+            new Claim(ClaimTypes.Email, email),
+            new Claim(ClaimTypes.Role, role)
         };
 
         var key = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(

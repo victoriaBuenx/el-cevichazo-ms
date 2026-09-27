@@ -5,6 +5,9 @@ using ElCevichazo.Infrastructure.Repositories;
 using ElCevichazo.Infrastructure.Services;
 using ElCevichazo.Application.Interfaces;
 using ElCevichazo.Application.Auth.UseCases;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +16,36 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(
     builder.Configuration.GetConnectionString("DefaultConnection")
 ));
+
+var jwtSecret = builder.Configuration["Jwt:Secret"]
+    ?? throw new InvalidOperationException("JWT secret is not configured.");
+
+var jwtIssuer = builder.Configuration["Jwt:Issuer"]
+    ?? throw new InvalidOperationException("JWT issuer is not configured.");
+
+var jwtAudience = builder.Configuration["Jwt:Audience"]
+    ?? throw new InvalidOperationException("JWT audience is not configured.");
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtSecret)),
+
+            ValidateIssuer = true,
+            ValidIssuer = jwtIssuer,
+
+            ValidateAudience = true,
+            ValidAudience = jwtAudience,
+
+            ValidateLifetime = true,
+
+            ClockSkew = TimeSpan.Zero
+        };
+    });
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
@@ -31,5 +64,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 app.Run();
