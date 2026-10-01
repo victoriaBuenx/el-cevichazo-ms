@@ -25,7 +25,7 @@ public class AuthController : ControllerBase
         var response = await _loginUseCase.ExecuteAsync(request);
 
         if (response is null)
-            return Unauthorized(new { message = "Invalid credentials" });
+            return Unauthorized(new { message = "Verifica que tu correo electrónico y contraseña sean correctos." });
 
         return Ok(response);
     }
