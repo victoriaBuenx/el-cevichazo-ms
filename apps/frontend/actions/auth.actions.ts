@@ -22,8 +22,10 @@ export async function loginAction(prevState: unknown, formData: FormData) {
     });
 
     if (!loginResponse.accessToken) {
+      console.error("A valid token was not received from the server");
+
       return {
-        error: "A valid token was not received from the server",
+        error: "No fue posible completar el inicio de sesión.",
       };
     }
 

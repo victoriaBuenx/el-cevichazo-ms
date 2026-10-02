@@ -68,7 +68,7 @@ export default function LoginForm() {
                   <Alert variant="destructive" className="bg-destructive/10">
                     <CircleAlert className=" h-4 w-4" />
                     <AlertTitle className="text-sm font-semibold">
-                      Credenciales inválidas
+                      Error al iniciar sesión
                     </AlertTitle>
                     <AlertDescription className="font-medium">
                       {state.error}
