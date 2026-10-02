@@ -6,13 +6,23 @@ export interface LoginRequest {
 }
 
 export async function loginUser({ email, password }: LoginRequest) {
-  const response = await fetch(`${API_URL}/api/auth/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email, password }),
-  });
+  let response: Response;
+
+  try {
+    response = await fetch(`${API_URL}/api/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+  } catch (error) {
+    console.error("Login connection error:", error);
+
+    throw new Error(
+      "No fue posible conectar con el servicio. Inténtalo nuevamente más tarde.",
+    );
+  }
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => null);
