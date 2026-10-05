@@ -53,6 +53,5 @@ export async function loginAction(prevState: unknown, formData: FormData) {
       error: error instanceof Error ? error.message : "Could not sign in",
     };
   }
-
   redirect("/app");
 }
