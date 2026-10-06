@@ -22,4 +22,13 @@ public class UserRepository : IUserRepository
         await _dbContext.Users.AddAsync(user);
         await _dbContext.SaveChangesAsync();
     }
+
+    public async Task<List<User>> GetAllAsync()
+    {
+        return await _dbContext.Users
+            .AsNoTracking()
+            .OrderBy(u => u.CreatedAt)
+            .ToListAsync();
+
+    }
 }

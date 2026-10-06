@@ -68,6 +68,7 @@ builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
 builder.Services.AddScoped<LoginUseCase>();
 builder.Services.AddScoped<RegisterUseCase>();
+builder.Services.AddScoped<GetUsersUseCase>();
 
 builder.Services.AddControllers();
 builder.Services.AddCors(options =>
