@@ -1,6 +1,7 @@
 using ElCevichazo.Application.Auth.UseCases;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using ElCevichazo.Application.Auth.DTOs;
 
 namespace ElCevichazo.Api.Controllers;
 
@@ -10,10 +11,12 @@ namespace ElCevichazo.Api.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly GetUsersUseCase _getUsersUseCase;
+    private readonly RegisterUseCase _registerUseCase;
 
-    public UsersController(GetUsersUseCase getUsersUseCase)
+    public UsersController(GetUsersUseCase getUsersUseCase, RegisterUseCase registerUseCase)
     {
         _getUsersUseCase = getUsersUseCase;
+        _registerUseCase = registerUseCase;
     }
 
     [HttpGet]
@@ -22,5 +25,22 @@ public class UsersController : ControllerBase
     {
         var users = await _getUsersUseCase.ExecuteAsync();
         return Ok(users);
+    }
+
+    [HttpPost]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> CreateUser(RegisterRequest request)
+    {
+        var result = await _registerUseCase.ExecuteAsync(request);
+
+        if (result is null)
+        {
+            return Conflict(new
+            {
+                message = "El correo electrónico ya está registrado."
+            });
+        }
+
+        return StatusCode(StatusCodes.Status201Created, result);
     }
 }

@@ -36,7 +36,7 @@ public class AuthController : ControllerBase
         var response = await _registerUseCase.ExecuteAsync(request);
 
         if (response is null)
-            return Conflict(new {message = "The email address is already registered"});
+            return Conflict(new {message = "El correo electrónico ya está registrado."});
         
         return StatusCode(StatusCodes.Status201Created, response);
     }
