@@ -1,4 +1,4 @@
-using ElCevichazo.Application.Auth.Interfaces;
+using ElCevichazo.Application.Users.Interfaces;
 using ElCevichazo.Domain.Entities;
 using ElCevichazo.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
@@ -30,5 +30,16 @@ public class UserRepository : IUserRepository
             .OrderBy(u => u.CreatedAt)
             .ToListAsync();
 
+    }
+
+    public async Task UpdateAsync(User user)
+    {
+        _dbContext.Users.Update(user);
+        await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task<User?> GetByIdAsync(Guid id)
+    {
+        return await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
     }
 }

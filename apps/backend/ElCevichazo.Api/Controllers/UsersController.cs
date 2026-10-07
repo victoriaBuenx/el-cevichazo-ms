@@ -1,7 +1,7 @@
-using ElCevichazo.Application.Auth.UseCases;
+using ElCevichazo.Application.Users.UseCases;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using ElCevichazo.Application.Auth.DTOs;
+using ElCevichazo.Application.Users.DTOs;
 
 namespace ElCevichazo.Api.Controllers;
 
@@ -12,11 +12,13 @@ public class UsersController : ControllerBase
 {
     private readonly GetUsersUseCase _getUsersUseCase;
     private readonly RegisterUseCase _registerUseCase;
+    private readonly UpdateUserUseCase _upadteUserUseCase;
 
-    public UsersController(GetUsersUseCase getUsersUseCase, RegisterUseCase registerUseCase)
+    public UsersController(GetUsersUseCase getUsersUseCase, RegisterUseCase registerUseCase, UpdateUserUseCase updateUserUseCase)
     {
         _getUsersUseCase = getUsersUseCase;
         _registerUseCase = registerUseCase;
+        _upadteUserUseCase = updateUserUseCase;
     }
 
     [HttpGet]
@@ -42,5 +44,22 @@ public class UsersController : ControllerBase
         }
 
         return StatusCode(StatusCodes.Status201Created, result);
+    }
+
+    [HttpPut("{id:guid}")]
+    [Authorize (Policy = "AdminOnly")]
+    public async Task<IActionResult> UpdateUser(Guid id, UpdateUserRequest request)
+    {
+        var updated = await _upadteUserUseCase.ExecuteAsync(id, request);
+
+        if (!updated)
+        {
+            return NotFound(new
+            {
+                message = "Usuario no encontrado."
+            });
+        }
+
+        return NoContent();
     }
 }

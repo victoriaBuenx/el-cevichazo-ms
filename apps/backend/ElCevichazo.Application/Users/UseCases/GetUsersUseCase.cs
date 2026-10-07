@@ -1,7 +1,7 @@
-using ElCevichazo.Application.Auth.Interfaces;
-using ElCevichazo.Application.Auth.DTOs;
+using ElCevichazo.Application.Users.Interfaces;
+using ElCevichazo.Application.Users.DTOs;
 
-namespace ElCevichazo.Application.Auth.UseCases;
+namespace ElCevichazo.Application.Users.UseCases;
 
 public class GetUsersUseCase
 {

@@ -1,11 +1,12 @@
+using ElCevichazo.Application.Users.DTOs;
 using ElCevichazo.Application.Auth.DTOs;
-using ElCevichazo.Application.Auth.Interfaces;
+using ElCevichazo.Application.Users.Interfaces;
 using ElCevichazo.Application.Interfaces;
 using ElCevichazo.Domain.Entities;
 using ElCevichazo.Domain.Enums;
 
 
-namespace ElCevichazo.Application.Auth.UseCases;
+namespace ElCevichazo.Application.Users.UseCases;
 
 public class RegisterUseCase
 {
