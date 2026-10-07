@@ -5,6 +5,8 @@ using ElCevichazo.Infrastructure.Repositories;
 using ElCevichazo.Infrastructure.Services;
 using ElCevichazo.Application.Interfaces;
 using ElCevichazo.Application.Auth.UseCases;
+using ElCevichazo.Application.Users.UseCases;
+using ElCevichazo.Application.Users.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -70,6 +72,7 @@ builder.Services.AddScoped<LoginUseCase>();
 builder.Services.AddScoped<RegisterUseCase>();
 builder.Services.AddScoped<GetUsersUseCase>();
 builder.Services.AddScoped<UpdateUserUseCase>();
+builder.Services.AddScoped<UpdateUserStatusUseCase>();
 
 builder.Services.AddControllers();
 builder.Services.AddCors(options =>

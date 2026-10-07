@@ -1,4 +1,6 @@
 using ElCevichazo.Application.Auth.UseCases;
+using ElCevichazo.Application.Users.UseCases;
+using ElCevichazo.Application.Users.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using ElCevichazo.Application.Auth.DTOs;
 using System.Security.Claims;
