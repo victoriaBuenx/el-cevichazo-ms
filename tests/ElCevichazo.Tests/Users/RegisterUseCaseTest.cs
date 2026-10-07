@@ -1,12 +1,12 @@
-using ElCevichazo.Application.Auth.DTOs;
-using ElCevichazo.Application.Auth.Interfaces;
-using ElCevichazo.Application.Auth.UseCases;
+using ElCevichazo.Application.Users.DTOs;
+using ElCevichazo.Application.Users.Interfaces;
+using ElCevichazo.Application.Users.UseCases;
 using ElCevichazo.Application.Interfaces;
 using ElCevichazo.Domain.Entities;
 using ElCevichazo.Domain.Enums;
 using Moq;
 
-namespace ElCevichazo.Tests.Auth;
+namespace ElCevichazo.Tests.Users;
 
 public class RegisterUseCaseTests
 {

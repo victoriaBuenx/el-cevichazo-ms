@@ -1,4 +1,5 @@
 using ElCevichazo.Application.Auth.DTOs;
+using ElCevichazo.Application.Users.Interfaces;
 using ElCevichazo.Application.Auth.Interfaces;
 using ElCevichazo.Application.Interfaces;
 using ElCevichazo.Domain.Entities;
@@ -50,7 +51,6 @@ public class LoginUseCase
             ExpiresAt = expiresAt,
             CreatedAt = DateTime.UtcNow,
             IsRevoked = false,
-            //User = user
         };
 
         await _refreshTokenRepository.AddRefreshTokenAsync(refreshToken);
