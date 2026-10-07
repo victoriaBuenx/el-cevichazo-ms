@@ -13,12 +13,14 @@ public class UsersController : ControllerBase
     private readonly GetUsersUseCase _getUsersUseCase;
     private readonly RegisterUseCase _registerUseCase;
     private readonly UpdateUserUseCase _upadteUserUseCase;
+    private readonly UpdateUserStatusUseCase _updateUserStatusUseCase;
 
-    public UsersController(GetUsersUseCase getUsersUseCase, RegisterUseCase registerUseCase, UpdateUserUseCase updateUserUseCase)
+    public UsersController(GetUsersUseCase getUsersUseCase, RegisterUseCase registerUseCase, UpdateUserUseCase updateUserUseCase, UpdateUserStatusUseCase updateUserStatusUseCase)
     {
         _getUsersUseCase = getUsersUseCase;
         _registerUseCase = registerUseCase;
         _upadteUserUseCase = updateUserUseCase;
+        _updateUserStatusUseCase = updateUserStatusUseCase;
     }
 
     [HttpGet]
@@ -51,6 +53,23 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> UpdateUser(Guid id, UpdateUserRequest request)
     {
         var updated = await _upadteUserUseCase.ExecuteAsync(id, request);
+
+        if (!updated)
+        {
+            return NotFound(new
+            {
+                message = "Usuario no encontrado."
+            });
+        }
+
+        return NoContent();
+    }
+    
+    [HttpPatch("{id:guid}/status")]
+    [Authorize (Policy = "AdminOnly")]
+    public async Task<IActionResult> UpdateUserSatus(Guid id, UpdateUserStatusRequest request)
+    {
+        var updated = await _updateUserStatusUseCase.ExecuteAsync(id, request);
 
         if (!updated)
         {
