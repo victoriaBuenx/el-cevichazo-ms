@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Inter, Roboto_Mono, Outfit } from "next/font/google";
+import { Roboto_Mono, Outfit, Onest } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
-const inter = Inter({
+const onest = Onest({
   subsets: ["latin"],
   variable: "--font-sans",
 });
@@ -30,7 +30,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={cn(
         "h-full",
         "antialiased",
-        inter.variable,
+        onest.variable,
         geistMono.variable,
         outfit.variable,
         "font-sans",
