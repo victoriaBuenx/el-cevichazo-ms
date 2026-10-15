@@ -16,7 +16,7 @@ public class JwtService : IJwtService
         _configuration = configuration;
     }
 
-    public string GenerateAccessToken(Guid userId, string email, string role)
+    public string GenerateAccessToken(Guid userId, string email, string role, string? userName = null)
     {
         var secretKey = _configuration["Jwt:Secret"]
             ?? throw new InvalidOperationException("JWT secret key is not configured.");
@@ -29,13 +29,18 @@ public class JwtService : IJwtService
 
         var expirationMinutes = int.Parse(_configuration["Jwt:ExpirationMinutes"] ?? "15");
 
-
-        var claims = new[]
+        var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
             new Claim(ClaimTypes.Email, email),
             new Claim(ClaimTypes.Role, role)
         };
+
+        
+        if (!string.IsNullOrWhiteSpace(userName))
+        {
+            claims.Add(new Claim(ClaimTypes.Name, userName));
+        }
 
         var key = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(secretKey));

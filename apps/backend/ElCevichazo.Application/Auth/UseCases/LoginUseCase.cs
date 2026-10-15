@@ -38,7 +38,7 @@ public class LoginUseCase
         if (!passwordIsValid)
             return null;
 
-        var accessToken = _jwtService.GenerateAccessToken(user.Id, user.Email, user.Role.ToString());
+        var accessToken = _jwtService.GenerateAccessToken(user.Id, user.Email, user.Role.ToString(), user.UserName);
         
         var refreshTokenValue = Guid.NewGuid().ToString();
         var expiresAt = DateTime.UtcNow.AddDays(7);

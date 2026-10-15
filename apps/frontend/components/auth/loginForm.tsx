@@ -12,8 +12,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import loginImage from "../../public/loginImage.jpg";
 import logo from "../../public/logoCevi.jpeg";
 
-import { Eye, EyeOff } from "lucide-react";
-import { CircleAlert } from "lucide-react";
+import { EyeIcon, EyeSlashIcon } from "@phosphor-icons/react";
+import { WarningCircleIcon } from "@phosphor-icons/react";
 
 import { loginAction } from "@/actions/auth.actions";
 
@@ -41,32 +41,15 @@ export default function LoginForm() {
               "linear-gradient(160deg, rgba(10,18,42,0.78) 0%, rgba(15,35,80,0.65) 50%, rgba(10,18,42,0.85) 100%)",
           }}
         />
-        <div className="absolute inset-0 flex flex-col justify-between p-10">
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white/90 backdrop-blur-sm ring-1 ring-white/20">
-              🦐 El Cevichazo
-            </span>
-          </div>
-          <div className="max-w-sm">
-            <h1 className="mb-3 text-4xl font-bold font-outfit leading-tight text-white drop-shadow-lg">
-              El sabor del mar,
-              <br />
-              <span className="text-sky-300 font-outfit">en tu mesa.</span>
-            </h1>
-            <p className="text-sm leading-relaxed text-white/70">
-              Todo el control de los gastos de El Cevichazo, en un solo lugar.
-            </p>
-          </div>
-        </div>
       </div>
-      <div className="flex flex-1 flex-col justify-between p-8 md:p-12">
-        <div className="flex flex-1 items-center justify-center">
+      <div className="flex flex-1 flex-col p-8 md:p-12">
+        <div className="flex flex-1 justify-center">
           <div className="w-full max-w-md">
             <div className="mb-8">
               <div className="mb-4 min-h-[72px]">
                 {state?.error && (
                   <Alert variant="destructive" className="bg-destructive/10">
-                    <CircleAlert className=" h-4 w-4" />
+                    <WarningCircleIcon className=" h-4 w-4" />
                     <AlertTitle className="text-sm font-semibold">
                       Error al iniciar sesión
                     </AlertTitle>
@@ -76,15 +59,12 @@ export default function LoginForm() {
                   </Alert>
                 )}
               </div>
-              <span className="mb-6 inline-flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 lg:hidden">
-                🦐 El Cevichazo
-              </span>
               <Image
                 src={logo}
                 alt="El Cevichazo Logo"
-                className="h-24 w-auto pt-2"
+                className="h-24 w-auto"
               />
-              <h2 className="mt-2 text-2xl font-medium tracking-tight text-foreground">
+              <h2 className="mt-6 text-2xl font-semibold tracking-tight text-foreground">
                 Iniciar sesión
               </h2>
               <p className="mt-1.5 text-sm text-muted-foreground">
@@ -144,11 +124,7 @@ export default function LoginForm() {
                     className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground hover:bg-transparent"
                     onClick={() => setShowPassword((prev) => !prev)}
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                    {showPassword ? <EyeSlashIcon /> : <EyeIcon />}
                   </Button>
                 </div>
               </div>

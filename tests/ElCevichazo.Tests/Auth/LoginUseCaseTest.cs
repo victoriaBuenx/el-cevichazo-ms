@@ -141,7 +141,8 @@ public class LoginUseCaseTest
             .Setup(jwt => jwt.GenerateAccessToken(
                 user.Id,
                 user.Email,
-                user.Role.ToString()))
+                user.Role.ToString(),
+                user.UserName))
             .Returns("access-token");
 
         _refreshTokenRepositoryMock

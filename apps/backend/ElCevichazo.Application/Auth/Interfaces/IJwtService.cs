@@ -4,5 +4,5 @@ namespace ElCevichazo.Application.Auth.Interfaces;
 
 public interface IJwtService
 {
-    string GenerateAccessToken(Guid userId ,string email, string role);
+    string GenerateAccessToken(Guid userId, string email, string role, string? userName = null);
 }

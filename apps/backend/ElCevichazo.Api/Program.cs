@@ -69,6 +69,7 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
 builder.Services.AddScoped<LoginUseCase>();
+builder.Services.AddScoped<LogoutUseCase>();
 builder.Services.AddScoped<RegisterUseCase>();
 builder.Services.AddScoped<GetUsersUseCase>();
 builder.Services.AddScoped<UpdateUserUseCase>();

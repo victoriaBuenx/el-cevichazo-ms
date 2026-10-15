@@ -24,5 +24,12 @@ export async function getCurrentUser() {
     return null;
   }
 
-  return response.json();
+  const data = await response.json();
+  return {
+    ...data,
+    id: data.userId ?? data.id,
+    nombre:
+      data.userName || data.nombre || data.email?.split("@")[0] || "Usuario",
+    rol: data.role || data.rol || "Usuario",
+  };
 }

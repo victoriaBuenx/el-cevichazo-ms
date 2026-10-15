@@ -3,7 +3,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { loginUser } from "@/services/auth.service";
+import { loginUser, logoutUser } from "@/services/auth.service";
 
 export async function loginAction(prevState: unknown, formData: FormData) {
   const email = formData.get("email") as string;
@@ -54,4 +54,24 @@ export async function loginAction(prevState: unknown, formData: FormData) {
     };
   }
   redirect("/app");
+}
+
+export async function logoutAction() {
+  try {
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get("access_token")?.value;
+    const refreshToken = cookieStore.get("refresh_token")?.value;
+
+    await logoutUser(accessToken, refreshToken);
+
+    cookieStore.delete("access_token");
+    cookieStore.delete("refresh_token");
+  } catch (error) {
+    console.error("Logout Action Error:", error);
+    const cookieStore = await cookies();
+    cookieStore.delete("access_token");
+    cookieStore.delete("refresh_token");
+  }
+
+  redirect("/login");
 }

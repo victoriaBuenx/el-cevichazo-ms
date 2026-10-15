@@ -14,11 +14,16 @@ public class AuthController : ControllerBase
 {
     private readonly LoginUseCase _loginUseCase;
     private readonly RegisterUseCase _registerUseCase;
+    private readonly LogoutUseCase _logoutUseCase;
 
-    public AuthController(LoginUseCase loginUseCase, RegisterUseCase registerUseCase)
+    public AuthController(
+        LoginUseCase loginUseCase,
+        RegisterUseCase registerUseCase,
+        LogoutUseCase logoutUseCase)
     {
         _loginUseCase = loginUseCase;
         _registerUseCase = registerUseCase;
+        _logoutUseCase = logoutUseCase;
     }
 
     [HttpPost("login")]
@@ -43,6 +48,21 @@ public class AuthController : ControllerBase
         return StatusCode(StatusCodes.Status201Created, response);
     }
 
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout([FromBody] LogoutRequest? request)
+    {
+        Guid? userId = null;
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (Guid.TryParse(userIdClaim, out var parsedGuid))
+        {
+            userId = parsedGuid;
+        }
+
+        await _logoutUseCase.ExecuteAsync(request, userId);
+
+        return Ok(new { message = "Sesión cerrada correctamente." });
+    }
+
     [HttpGet("me")]
     [Authorize]
     public IActionResult Me()
@@ -51,6 +71,7 @@ public class AuthController : ControllerBase
         {
             message = "Token válido.",
             userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
+            userName = User.FindFirst(ClaimTypes.Name)?.Value,
             email = User.FindFirst(ClaimTypes.Email)?.Value,
             role = User.FindFirst(ClaimTypes.Role)?.Value
         });

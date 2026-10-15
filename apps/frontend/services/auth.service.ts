@@ -32,3 +32,27 @@ export async function loginUser({ email, password }: LoginRequest) {
 
   return response.json();
 }
+
+export async function logoutUser(accessToken?: string, refreshToken?: string) {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+
+  if (accessToken) {
+    headers["Authorization"] = `Bearer ${accessToken}`;
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/api/auth/logout`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ refreshToken }),
+    });
+
+    if (!response.ok) {
+      console.warn("Logout backend returned status:", response.status);
+    }
+  } catch (error) {
+    console.error("Logout connection error:", error);
+  }
+}
