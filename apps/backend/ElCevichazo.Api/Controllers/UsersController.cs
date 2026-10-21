@@ -2,6 +2,8 @@ using ElCevichazo.Application.Users.UseCases;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using ElCevichazo.Application.Users.DTOs;
+using ElCevichazo.Application.Users.Exceptions;
+
 
 namespace ElCevichazo.Api.Controllers;
 
@@ -49,20 +51,32 @@ public class UsersController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    [Authorize (Policy = "AdminOnly")]
-    public async Task<IActionResult> UpdateUser(Guid id, UpdateUserRequest request)
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> UpdateUser(
+        Guid id,
+        UpdateUserRequest request)
     {
-        var updated = await _upadteUserUseCase.ExecuteAsync(id, request);
-
-        if (!updated)
+        try
         {
-            return NotFound(new
+            var updated = await _upadteUserUseCase.ExecuteAsync(id, request);
+
+            if (!updated)
             {
-                message = "Usuario no encontrado."
+                return NotFound(new
+                {
+                    message = "Usuario no encontrado."
+                });
+            }
+
+            return NoContent();
+        }
+        catch (DuplicateUserEmailException ex)
+        {
+            return Conflict(new
+            {
+                message = ex.Message
             });
         }
-
-        return NoContent();
     }
     
     [HttpPatch("{id:guid}/status")]

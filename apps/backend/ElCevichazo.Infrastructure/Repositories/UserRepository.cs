@@ -42,4 +42,14 @@ public class UserRepository : IUserRepository
     {
         return await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
     }
+
+    public async Task<bool> ExistsByEmailAsync(
+        string email,
+        Guid? excludeUserId = null)
+    {
+        return await _dbContext.Users.AnyAsync(user =>
+            user.Email == email &&
+            (!excludeUserId.HasValue || user.Id != excludeUserId.Value)
+        );
+    }
 }

@@ -1,28 +1,37 @@
 using ElCevichazo.Application.Users.DTOs;
 using ElCevichazo.Application.Users.Interfaces;
+using ElCevichazo.Application.Users.Exceptions;
 
 namespace ElCevichazo.Application.Users.UseCases;
 
 public class UpdateUserUseCase
 {
-    private readonly IUserRepository _userRespository;
+    private readonly IUserRepository _userRepository;
 
     public UpdateUserUseCase (IUserRepository userRepository)
     {
-        _userRespository = userRepository;
+        _userRepository = userRepository;
     }
 
     public async Task<bool> ExecuteAsync(Guid id, UpdateUserRequest request)
     {
-        var user = await _userRespository.GetByIdAsync(id);
+        var user = await _userRepository.GetByIdAsync(id);
         if (user is null)
             return false;
+
+        var emailExists = await _userRepository.ExistsByEmailAsync(
+            request.Email,
+            id
+        );
+
+        if (emailExists)
+            throw new DuplicateUserEmailException();
 
         user.UserName = request.UserName;
         user.Email = request.Email;
         user.UpdatedAt = DateTime.UtcNow;
 
-        await _userRespository.UpdateAsync(user);
+        await _userRepository.UpdateAsync(user);
         return true;
     }
 }
