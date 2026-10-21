@@ -9,4 +9,5 @@ public interface IUserRepository
     Task <List<User>> GetAllAsync ();
     Task UpdateAsync (User user);
     Task<User?> GetByIdAsync (Guid id);
+    Task<bool> ExistsByEmailAsync(string email, Guid? excludeUserId = null);
 }
