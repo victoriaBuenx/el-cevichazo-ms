@@ -10,7 +10,7 @@ public class AppDbContext : DbContext
 
     public DbSet<User> Users {get; set;} = null!;
     public DbSet<RefreshToken> RefreshTokens {get; set;} = null!;
-    public DbSet<Suppliers> Suppliers {get; set;} = null!;
+    public DbSet<Supplier> Suppliers {get; set;} = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

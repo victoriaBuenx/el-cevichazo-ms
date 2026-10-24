@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ElCevichazo.Domain.Entities;
 
-public class Suppliers
+public class Supplier
 {
     public Guid Id {get; set;}
     public string Name {get; set;} = string.Empty;
