@@ -10,6 +10,7 @@ using ElCevichazo.Application.Users.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using ElCevichazo.Application.Suppliers.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,6 +68,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<ISuppliersRepository, SupplierRepository>();
 
 builder.Services.AddScoped<LoginUseCase>();
 builder.Services.AddScoped<LogoutUseCase>();
