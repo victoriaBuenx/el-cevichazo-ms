@@ -1,7 +1,8 @@
+using ElCevichazo.Application.Suppliers.DTOs;
+using ElCevichazo.Application.Suppliers.Exceptions;
 using ElCevichazo.Application.Suppliers.UseCases;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using ElCevichazo.Application.Suppliers.DTOs;
+
 namespace ElCevichazo.Api.Controllers;
 
 [ApiController]
@@ -10,18 +11,23 @@ public class SuppliersController : ControllerBase
 {
     private readonly GetSuppliersUseCase _getSuppliersUseCase;
     private readonly RegisterSuppliersUseCase _registerUseCase;
+    private readonly UpdateSupplierUseCase _updateSupplierUseCase;
 
-    public SuppliersController(GetSuppliersUseCase getSuppliersUseCase, RegisterSuppliersUseCase registerUseCase)
+    public SuppliersController(
+        GetSuppliersUseCase getSuppliersUseCase,
+        RegisterSuppliersUseCase registerUseCase,
+        UpdateSupplierUseCase updateSupplierUseCase)
     {
         _getSuppliersUseCase = getSuppliersUseCase;
         _registerUseCase = registerUseCase;
+        _updateSupplierUseCase = updateSupplierUseCase;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var users = await _getSuppliersUseCase.ExecuteAsync();
-        return Ok(users);
+        var suppliers = await _getSuppliersUseCase.ExecuteAsync();
+        return Ok(suppliers);
     }
 
     [HttpPost]
@@ -40,4 +46,31 @@ public class SuppliersController : ControllerBase
         return StatusCode(StatusCodes.Status201Created, result);
     }
 
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> UpdateSupplier(
+        Guid id,
+        UpdateSupplierRequest request)
+    {
+        try
+        {
+            var updated = await _updateSupplierUseCase.ExecuteAsync(id, request);
+
+            if (!updated)
+            {
+                return NotFound(new
+                {
+                    message = "Proveedor no encontrado."
+                });
+            }
+
+            return NoContent();
+        }
+        catch (DuplicateSupplierPhoneException ex)
+        {
+            return Conflict(new
+            {
+                message = ex.Message
+            });
+        }
+    }
 }

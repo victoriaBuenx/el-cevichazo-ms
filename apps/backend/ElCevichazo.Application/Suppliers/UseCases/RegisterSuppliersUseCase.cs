@@ -2,8 +2,8 @@ using ElCevichazo.Application.Suppliers.Interfaces;
 using ElCevichazo.Application.Suppliers.DTOs;
 using ElCevichazo.Domain.Entities;
 
-
 namespace ElCevichazo.Application.Suppliers.UseCases;
+
 public class RegisterSuppliersUseCase
 {
     private readonly ISuppliersRepository _suppliersRepository;
@@ -15,10 +15,11 @@ public class RegisterSuppliersUseCase
 
     public async Task<RegisterResponse?> ExecuteAsync(RegisterRequest request)
     {
-        if (!string.IsNullOrWhiteSpace(request.Phone))
+        var trimmedPhone = request.Phone.Trim();
+        if (!string.IsNullOrWhiteSpace(trimmedPhone))
         {
             var existingSupplier =
-                await _suppliersRepository.GetByPhoneAsync(request.Phone.Trim());
+                await _suppliersRepository.GetByPhoneAsync(trimmedPhone);
 
             if (existingSupplier is not null)
             {
@@ -29,12 +30,12 @@ public class RegisterSuppliersUseCase
         var supplier = new Supplier
         {
             Id = Guid.NewGuid(),
-            Name = request.Name,
-            Phone = string.IsNullOrWhiteSpace(request.Phone)
-            ? null
-            : request.Phone.Trim(),
-            Notes = request.Notes,
+            Name = request.Name.Trim(),
+            Phone = trimmedPhone,
+            Notes = request.Notes?.Trim(),
             IsActive = true,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
         };
 
         await _suppliersRepository.AddAsync(supplier);
@@ -46,6 +47,8 @@ public class RegisterSuppliersUseCase
             Phone = supplier.Phone,
             Notes = supplier.Notes,
             IsActive = supplier.IsActive,
+            CreatedAt = supplier.CreatedAt,
+            UpdatedAt = supplier.UpdatedAt,
         };
     }
 }

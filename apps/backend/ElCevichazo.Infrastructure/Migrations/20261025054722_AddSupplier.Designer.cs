@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ElCevichazo.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261022011909_AddSupplier")]
+    [Migration("20261025054722_AddSupplier")]
     partial class AddSupplier
     {
         /// <inheritdoc />
@@ -54,7 +54,7 @@ namespace ElCevichazo.Infrastructure.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
-            modelBuilder.Entity("ElCevichazo.Domain.Entities.Suppliers", b =>
+            modelBuilder.Entity("ElCevichazo.Domain.Entities.Supplier", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -75,6 +75,7 @@ namespace ElCevichazo.Infrastructure.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.Property<string>("Phone")
+                        .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
 

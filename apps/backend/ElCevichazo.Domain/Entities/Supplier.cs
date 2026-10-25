@@ -4,13 +4,16 @@ namespace ElCevichazo.Domain.Entities;
 
 public class Supplier
 {
-    public Guid Id {get; set;}
-    public string Name {get; set;} = string.Empty;
+    public Guid Id { get; set; }
 
+    [Required]
+    [MaxLength(100)]
+    public string Name { get; set; } = string.Empty;
+
+    [Required]
     [MaxLength(10)]
-
-    public string? Phone { get; set; }
-
+    [RegularExpression(@"^\d+$", ErrorMessage = "El teléfono solo debe contener números.")]
+    public string Phone { get; set; } = string.Empty;
 
     [MaxLength(500)]
     public string? Notes { get; set; }
@@ -20,5 +23,4 @@ public class Supplier
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-
 }
