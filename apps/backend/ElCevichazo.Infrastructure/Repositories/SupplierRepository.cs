@@ -21,4 +21,14 @@ public class SupplierRepository : ISuppliersRepository
             .ToListAsync();
 
     }
+    public async Task<Supplier?> GetByPhoneAsync(string phone)
+    {
+        return await _dbContext.Suppliers
+            .FirstOrDefaultAsync(s => s.Phone == phone);
+    }
+    public async Task AddAsync(Supplier supplier)
+    {
+        await _dbContext.Suppliers.AddAsync(supplier);
+        await _dbContext.SaveChangesAsync();
+    }
 }
