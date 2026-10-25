@@ -12,15 +12,18 @@ public class SuppliersController : ControllerBase
     private readonly GetSuppliersUseCase _getSuppliersUseCase;
     private readonly RegisterSuppliersUseCase _registerUseCase;
     private readonly UpdateSupplierUseCase _updateSupplierUseCase;
+    private readonly UpdateSupplierStatusUseCase _updateSupplierStatusUseCase;
 
     public SuppliersController(
         GetSuppliersUseCase getSuppliersUseCase,
         RegisterSuppliersUseCase registerUseCase,
-        UpdateSupplierUseCase updateSupplierUseCase)
+        UpdateSupplierUseCase updateSupplierUseCase,
+        UpdateSupplierStatusUseCase updateSupplierStatusUseCase)
     {
         _getSuppliersUseCase = getSuppliersUseCase;
         _registerUseCase = registerUseCase;
         _updateSupplierUseCase = updateSupplierUseCase;
+        _updateSupplierStatusUseCase = updateSupplierStatusUseCase;
     }
 
     [HttpGet]
@@ -73,4 +76,21 @@ public class SuppliersController : ControllerBase
             });
         }
     }
+
+    [HttpPatch("{id:guid}/status")]
+    public async Task<IActionResult> UpdateSupplierStatus(Guid id, UpdateSupplierStatusRequest request)
+    {
+        var updated = await _updateSupplierStatusUseCase.ExecuteAsync(id, request);
+
+        if (!updated)
+        {
+            return NotFound(new
+            {
+                message = "Proveedor no encontrado."
+            });
+        }
+
+        return NoContent();
+    }
 }
+

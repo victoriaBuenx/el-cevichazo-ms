@@ -80,6 +80,7 @@ builder.Services.AddScoped<UpdateUserStatusUseCase>();
 builder.Services.AddScoped<GetSuppliersUseCase>();
 builder.Services.AddScoped<RegisterSuppliersUseCase>();
 builder.Services.AddScoped<UpdateSupplierUseCase>();
+builder.Services.AddScoped<UpdateSupplierStatusUseCase>();
 
 
 builder.Services.AddControllers();
