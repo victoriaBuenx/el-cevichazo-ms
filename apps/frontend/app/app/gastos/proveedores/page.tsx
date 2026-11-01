@@ -1,8 +1,17 @@
+import { ProveedoresGrid } from "@/components/proveedores/proveedoresGrid";
+
 export default function ProveedoresPage() {
   return (
-    <div className="flex flex-col gap-2">
-      <h1 className="text-2xl font-bold tracking-tight">Proveedores</h1>
-      <p className="text-sm text-muted-foreground">Gestiona tus proveedores.</p>
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl font-bold tracking-tight">Proveedores</h1>
+        <p className="text-sm text-muted-foreground">
+          Administra el catálogo de proveedores de mariscos, abarrotes y servicios,
+          monitorea saldos por liquidar y el gasto acumulado del mes.
+        </p>
+      </div>
+
+      <ProveedoresGrid />
     </div>
   );
 }
