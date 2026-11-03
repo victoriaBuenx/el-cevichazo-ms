@@ -17,8 +17,6 @@ interface ProveedoresFiltrosProps {
   filtroEstado: FiltroEstado;
   onFiltroEstadoChange: (filtro: FiltroEstado) => void;
   onCrearProveedor: () => void;
-  conteoFiltrado: number;
-  totalProveedores: number;
 }
 
 export function ProveedoresFiltros({
@@ -27,8 +25,6 @@ export function ProveedoresFiltros({
   filtroEstado,
   onFiltroEstadoChange,
   onCrearProveedor,
-  conteoFiltrado,
-  totalProveedores,
 }: ProveedoresFiltrosProps) {
   const filtros: { id: FiltroEstado; label: string }[] = [
     { id: "todos", label: "Todos" },
@@ -39,7 +35,9 @@ export function ProveedoresFiltros({
 
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      {/* Barra de búsqueda y filtros rápidos */}
       <div className="flex flex-1 flex-col gap-2.5 sm:flex-row sm:items-center">
+        {/* Input de búsqueda */}
         <div className="relative w-full sm:max-w-xs md:max-w-sm">
           <MagnifyingGlassIcon
             className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
@@ -55,13 +53,15 @@ export function ProveedoresFiltros({
             <button
               type="button"
               onClick={() => onBusquedaChange("")}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
               aria-label="Limpiar búsqueda"
             >
               <XCircleIcon className="size-4" weight="fill" />
             </button>
           )}
         </div>
+
+        {/* Botones de filtro rápido */}
         <div className="flex flex-wrap items-center gap-1.5">
           {filtros.map((f) => {
             const activo = filtroEstado === f.id;
@@ -71,7 +71,7 @@ export function ProveedoresFiltros({
                 type="button"
                 onClick={() => onFiltroEstadoChange(f.id)}
                 className={cn(
-                  "inline-flex h-8 items-center rounded-md px-3 text-xs font-medium transition-colors",
+                  "inline-flex h-8 items-center rounded-md px-3 text-xs font-medium transition-colors cursor-pointer",
                   activo
                     ? "bg-primary text-primary-foreground shadow-xs"
                     : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -83,13 +83,9 @@ export function ProveedoresFiltros({
           })}
         </div>
       </div>
-      <div className="flex items-center justify-between gap-3 sm:justify-end">
-        <span className="text-xs text-muted-foreground">
-          Mostrando{" "}
-          <strong className="text-foreground">{conteoFiltrado}</strong> de{" "}
-          {totalProveedores}
-        </span>
 
+      {/* Botón de acción principal */}
+      <div className="flex items-center justify-end">
         <Button
           type="button"
           onClick={onCrearProveedor}

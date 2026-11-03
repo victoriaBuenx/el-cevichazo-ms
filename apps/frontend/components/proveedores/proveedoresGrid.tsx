@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ProhibitIcon, CheckIcon } from "@phosphor-icons/react";
 import { ProveedoresMetrics } from "./proveedoresMetrics";
 import { ProveedoresFiltros, type FiltroEstado } from "./proveedoresFiltros";
@@ -8,35 +9,33 @@ import { ProveedoresTable } from "./proveedoresTable";
 import { ProveedoresForm } from "./proveedoresForm";
 import { ProveedorDetalleDialog } from "./proveedorDetalleDialog";
 import { ConfirmarAcción } from "../shared/confirmarAcción";
-import { PROVEEDORES_EJEMPLO } from "./mockData";
+import { cambiarEstatusProveedorAction } from "@/actions/proveedores/actions";
 import type { Proveedor } from "@/types/proveedor";
 
 interface ProveedoresGridProps {
-  initialProveedores?: Proveedor[];
+  proveedores: Proveedor[];
 }
 
-export function ProveedoresGrid({
-  initialProveedores = PROVEEDORES_EJEMPLO,
-}: ProveedoresGridProps) {
-  const [proveedores, setProveedores] =
-    useState<Proveedor[]>(initialProveedores);
+export function ProveedoresGrid({ proveedores = [] }: ProveedoresGridProps) {
+  const router = useRouter();
   const [busqueda, setBusqueda] = useState("");
   const [filtroEstado, setFiltroEstado] = useState<FiltroEstado>("todos");
 
+  // Modales
   const [formAbierto, setFormAbierto] = useState(false);
   const [proveedorSeleccionado, setProveedorSeleccionado] =
     useState<Proveedor | null>(null);
 
   const [detalleAbierto, setDetalleAbierto] = useState(false);
-  const [proveedorDetalle, setProveedorDetalle] = useState<Proveedor | null>(
-    null,
-  );
+  const [proveedorDetalle, setProveedorDetalle] =
+    useState<Proveedor | null>(null);
 
   const [proveedorParaEstado, setProveedorParaEstado] =
     useState<Proveedor | null>(null);
   const [confirmarDesactivar, setConfirmarDesactivar] = useState(false);
   const [confirmarReactivar, setConfirmarReactivar] = useState(false);
 
+  // Filtrado reactivo en cliente sobre la data del servidor
   const proveedoresFiltrados = useMemo(() => {
     const q = busqueda.trim().toLowerCase();
 
@@ -48,6 +47,7 @@ export function ProveedoresGrid({
         (p.notes && p.notes.toLowerCase().includes(q));
 
       if (!coincideBusqueda) return false;
+
       if (filtroEstado === "activos") return p.isActive;
       if (filtroEstado === "inactivos") return !p.isActive;
       if (filtroEstado === "con_adeudo") return (p.pendingBalance ?? 0) > 0;
@@ -70,43 +70,7 @@ export function ProveedoresGrid({
     setProveedorDetalle(proveedor);
     setDetalleAbierto(true);
   };
-  const handleGuardar = (datos: {
-    id?: string;
-    name: string;
-    phone: string;
-    notes?: string;
-    pendingBalance?: number;
-  }) => {
-    if (datos.id) {
-      setProveedores((prev) =>
-        prev.map((item) =>
-          item.id === datos.id
-            ? {
-                ...item,
-                name: datos.name,
-                phone: datos.phone,
-                notes: datos.notes ?? null,
-                pendingBalance: datos.pendingBalance ?? item.pendingBalance,
-              }
-            : item,
-        ),
-      );
-    } else {
-      const nuevo: Proveedor = {
-        id: crypto.randomUUID(),
-        name: datos.name,
-        phone: datos.phone,
-        notes: datos.notes ?? null,
-        isActive: true,
-        createdAt: new Date().toISOString(),
-        pendingBalance: datos.pendingBalance ?? 0,
-        monthExpense: 0,
-        lastMovementDate: new Date().toISOString(),
-        lastMovementConcept: "Alta de proveedor",
-      };
-      setProveedores((prev) => [nuevo, ...prev]);
-    }
-  };
+
   const handleSolicitarCambioEstado = (proveedor: Proveedor) => {
     setProveedorParaEstado(proveedor);
     if (proveedor.isActive) {
@@ -115,42 +79,48 @@ export function ProveedoresGrid({
       setConfirmarReactivar(true);
     }
   };
-  const handleConfirmarCambioEstado = (nuevoEstado: boolean) => {
+
+  const handleConfirmarCambioEstado = async (nuevoEstado: boolean) => {
     if (!proveedorParaEstado) return;
-    setProveedores((prev) =>
-      prev.map((item) =>
-        item.id === proveedorParaEstado.id
-          ? { ...item, isActive: nuevoEstado }
-          : item,
-      ),
-    );
+
+    await cambiarEstatusProveedorAction({
+      id: proveedorParaEstado.id,
+      isActive: nuevoEstado,
+    });
+    router.refresh();
     setProveedorParaEstado(null);
   };
 
   return (
     <div className="flex flex-col gap-6">
+      {/* 1. Indicadores Financieros (KPIs) */}
       <ProveedoresMetrics proveedores={proveedores} />
+
+      {/* 2. Barra de Búsqueda, Filtros y Botón de Acción */}
       <ProveedoresFiltros
         busqueda={busqueda}
         onBusquedaChange={setBusqueda}
         filtroEstado={filtroEstado}
         onFiltroEstadoChange={setFiltroEstado}
         onCrearProveedor={handleCrear}
-        conteoFiltrado={proveedoresFiltrados.length}
-        totalProveedores={proveedores.length}
       />
+
+      {/* 3. Tabla de Proveedores */}
       <ProveedoresTable
         proveedores={proveedoresFiltrados}
         onEditar={handleEditar}
         onCambiarEstado={handleSolicitarCambioEstado}
         onVerDetalle={handleVerDetalle}
       />
+
+      {/* 4. Modal para Crear o Editar Proveedor */}
       <ProveedoresForm
         abierto={formAbierto}
         onAbiertoChange={setFormAbierto}
         proveedor={proveedorSeleccionado}
-        onGuardar={handleGuardar}
       />
+
+      {/* 5. Modal de Ficha Técnica / Detalle del Proveedor */}
       <ProveedorDetalleDialog
         abierto={detalleAbierto}
         onAbiertoChange={setDetalleAbierto}
@@ -160,6 +130,8 @@ export function ProveedoresGrid({
           handleEditar(p);
         }}
       />
+
+      {/* 6. Modal de Confirmación para Desactivar */}
       <ConfirmarAcción
         abierto={confirmarDesactivar}
         onAbiertoChange={setConfirmarDesactivar}
@@ -171,6 +143,8 @@ export function ProveedoresGrid({
         textoCancelar="No, mantener activo"
         onConfirmar={() => handleConfirmarCambioEstado(false)}
       />
+
+      {/* 7. Modal de Confirmación para Reactivar */}
       <ConfirmarAcción
         abierto={confirmarReactivar}
         onAbiertoChange={setConfirmarReactivar}

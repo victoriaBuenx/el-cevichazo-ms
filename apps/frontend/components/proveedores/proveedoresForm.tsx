@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   StorefrontIcon,
   PencilSimpleIcon,
   PhoneIcon,
   ChatCenteredTextIcon,
-  CurrencyDollarIcon,
 } from "@phosphor-icons/react";
 import {
   Dialog,
@@ -20,26 +20,22 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import {
+  crearProveedorAction,
+  actualizarProveedorAction,
+} from "@/actions/proveedores/actions";
 import type { Proveedor } from "@/types/proveedor";
 
 interface ProveedoresFormProps {
   abierto: boolean;
   onAbiertoChange: (abierto: boolean) => void;
   proveedor?: Proveedor | null;
-  onGuardar: (datos: {
-    id?: string;
-    name: string;
-    phone: string;
-    notes?: string;
-    pendingBalance?: number;
-  }) => void;
 }
 
 export function ProveedoresForm({
   abierto,
   onAbiertoChange,
   proveedor,
-  onGuardar,
 }: ProveedoresFormProps) {
   const esEdicion = Boolean(proveedor);
 
@@ -52,7 +48,6 @@ export function ProveedoresForm({
             esEdicion={esEdicion}
             proveedor={proveedor}
             onCerrar={() => onAbiertoChange(false)}
-            onGuardar={onGuardar}
           />
         )}
       </DialogContent>
@@ -64,72 +59,68 @@ function ProveedoresFormContent({
   esEdicion,
   proveedor,
   onCerrar,
-  onGuardar,
 }: {
   esEdicion: boolean;
   proveedor?: Proveedor | null;
   onCerrar: () => void;
-  onGuardar: (datos: {
-    id?: string;
-    name: string;
-    phone: string;
-    notes?: string;
-    pendingBalance?: number;
-  }) => void;
 }) {
+  const router = useRouter();
   const [nombre, setNombre] = useState(proveedor?.name ?? "");
   const [telefono, setTelefono] = useState(proveedor?.phone ?? "");
-  const [adeudo, setAdeudo] = useState(
-    proveedor?.pendingBalance !== undefined
-      ? String(proveedor.pendingBalance)
-      : "0",
-  );
   const [notas, setNotas] = useState(proveedor?.notes ?? "");
   const [error, setError] = useState("");
-  const [guardando, setGuardando] = useState(false);
+  const [cargando, setCargando] = useState(false);
 
   const handleTelefonoChange = (valor: string) => {
     const soloDigitos = valor.replace(/\D/g, "").slice(0, 10);
     setTelefono(soloDigitos);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if (!nombre.trim()) {
+    const nombreLimpio = nombre.trim();
+    const telLimpio = telefono.trim();
+
+    if (!nombreLimpio) {
       setError("El nombre del proveedor es obligatorio.");
       return;
     }
 
-    if (telefono.length !== 10) {
+    if (telLimpio.length !== 10) {
       setError("El teléfono debe contener exactamente 10 dígitos numéricos.");
       return;
     }
 
-    const adeudoNum = parseFloat(adeudo);
-    if (isNaN(adeudoNum) || adeudoNum < 0) {
-      setError(
-        "El saldo de adeudo debe ser un monto válido mayor o igual a 0.",
-      );
-      return;
-    }
-
-    setGuardando(true);
+    setCargando(true);
 
     try {
-      onGuardar({
-        id: proveedor?.id,
-        name: nombre.trim(),
-        phone: telefono.trim(),
-        notes: notas.trim() || undefined,
-        pendingBalance: adeudoNum,
-      });
+      const resultado =
+        esEdicion && proveedor
+          ? await actualizarProveedorAction({
+              id: proveedor.id,
+              name: nombreLimpio,
+              phone: telLimpio,
+              notes: notas.trim() || undefined,
+            })
+          : await crearProveedorAction({
+              name: nombreLimpio,
+              phone: telLimpio,
+              notes: notas.trim() || undefined,
+            });
+
+      if (!resultado.success) {
+        setError(resultado.message);
+        return;
+      }
+
       onCerrar();
+      router.refresh();
     } catch {
-      setError("Ocurrió un error al procesar la información del proveedor.");
+      setError("Ocurrió un error inesperado. Inténtalo de nuevo.");
     } finally {
-      setGuardando(false);
+      setCargando(false);
     }
   };
 
@@ -144,6 +135,7 @@ function ProveedoresFormContent({
               <StorefrontIcon className="size-5" weight="duotone" />
             )}
           </div>
+
           <DialogHeader className="gap-1.5">
             <DialogTitle className="font-semibold text-base">
               {esEdicion ? "Editar proveedor" : "Registrar nuevo proveedor"}
@@ -157,13 +149,16 @@ function ProveedoresFormContent({
           </DialogHeader>
         </div>
       </div>
+
       <form onSubmit={handleSubmit}>
         <div className="px-6 py-5">
           <FieldGroup className="gap-4">
+            {/* Nombre */}
             <Field>
               <FieldLabel htmlFor="nombre" className="text-sm font-medium">
                 Nombre de la empresa o proveedor *
               </FieldLabel>
+
               <div className="relative">
                 <StorefrontIcon
                   className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
@@ -180,51 +175,34 @@ function ProveedoresFormContent({
                 />
               </div>
             </Field>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Field>
-                <FieldLabel htmlFor="telefono" className="text-sm font-medium">
-                  Teléfono (10 dígitos) *
-                </FieldLabel>
-                <div className="relative">
-                  <PhoneIcon
-                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
-                    weight="duotone"
-                  />
-                  <Input
-                    id="telefono"
-                    value={telefono}
-                    onChange={(e) => handleTelefonoChange(e.target.value)}
-                    placeholder="6671234567"
-                    className="h-10 pl-9 text-sm"
-                    maxLength={10}
-                    required
-                  />
-                </div>
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="adeudo" className="text-sm font-medium">
-                  Adeudo inicial ($ MXN)
-                </FieldLabel>
-                <div className="relative">
-                  <CurrencyDollarIcon
-                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
-                    weight="duotone"
-                  />
-                  <Input
-                    id="adeudo"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={adeudo}
-                    onChange={(e) => setAdeudo(e.target.value)}
-                    placeholder="0.00"
-                    className="h-10 pl-9 text-sm"
-                  />
-                </div>
-              </Field>
-            </div>
+
+            {/* Teléfono */}
+            <Field>
+              <FieldLabel htmlFor="telefono" className="text-sm font-medium">
+                Teléfono (10 dígitos) *
+              </FieldLabel>
+
+              <div className="relative">
+                <PhoneIcon
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
+                  weight="duotone"
+                />
+                <Input
+                  id="telefono"
+                  type="tel"
+                  value={telefono}
+                  onChange={(e) => handleTelefonoChange(e.target.value)}
+                  placeholder="6671234567"
+                  className="h-10 pl-9 text-sm"
+                  maxLength={10}
+                  required
+                />
+              </div>
+            </Field>
 
             <Separator />
+
+            {/* Notas / Observaciones */}
             <Field>
               <div className="flex items-center justify-between">
                 <FieldLabel htmlFor="notas" className="text-sm font-medium">
@@ -234,6 +212,7 @@ function ProveedoresFormContent({
                   {notas.length}/500
                 </span>
               </div>
+
               <div className="relative">
                 <ChatCenteredTextIcon
                   className="pointer-events-none absolute left-3 top-3 size-4 text-muted-foreground"
@@ -250,34 +229,35 @@ function ProveedoresFormContent({
               </div>
             </Field>
           </FieldGroup>
+
           {error && (
-            <p
-              role="alert"
-              className="mt-4 text-sm font-medium text-destructive"
-            >
+            <p role="alert" className="mt-4 text-sm font-medium text-destructive">
               {error}
             </p>
           )}
         </div>
+
         <Separator />
+
         <DialogFooter className="px-6 py-4 bg-muted/30">
           <Button
             type="button"
             variant="outline"
             size="lg"
             onClick={onCerrar}
-            disabled={guardando}
+            disabled={cargando}
             className="gap-1.5"
           >
             Cancelar
           </Button>
+
           <Button
             type="submit"
             size="lg"
             className="gap-1.5 font-semibold"
-            disabled={guardando}
+            disabled={cargando}
           >
-            {guardando
+            {cargando
               ? "Guardando..."
               : esEdicion
                 ? "Guardar cambios"
