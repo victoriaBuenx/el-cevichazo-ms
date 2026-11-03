@@ -8,8 +8,6 @@ import {
   FileTextIcon,
   StorefrontIcon,
   CalendarBlankIcon,
-  WarningCircleIcon,
-  CheckCircleIcon,
 } from "@phosphor-icons/react";
 import {
   Table,
