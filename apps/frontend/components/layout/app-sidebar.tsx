@@ -4,13 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   HouseIcon,
+  ReceiptIcon,
   ShoppingCartSimpleIcon,
   WrenchIcon,
   ArrowsCounterClockwiseIcon,
   ClockCounterClockwiseIcon,
   ChartBarIcon,
   UsersIcon,
-  GearIcon,
   CaretDownIcon,
 } from "@phosphor-icons/react";
 import { useState } from "react";
@@ -43,6 +43,11 @@ const navMain = [
 ];
 
 const navGastos = [
+  {
+    title: "Tickets",
+    url: "/app/gastos/tickets",
+    icon: ReceiptIcon,
+  },
   {
     title: "Proveedores",
     url: "/app/gastos/proveedores",
@@ -78,11 +83,6 @@ const navAdmin = [
     title: "Usuarios",
     url: "/app/administracion/usuarios",
     icon: UsersIcon,
-  },
-  {
-    title: "Configuración",
-    url: "/app/administracion/configuracion",
-    icon: GearIcon,
   },
 ];
 

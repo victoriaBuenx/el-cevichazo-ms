@@ -20,9 +20,11 @@ export default async function AppLayout({
     <AuthProvider initialUser={user}>
       <SidebarProvider defaultOpen={true}>
         <AppSidebar />
-        <SidebarInset>
+        <SidebarInset className="min-w-0 max-w-full overflow-x-hidden">
           <AppTopbar />
-          <div className="flex flex-1 flex-col gap-4 p-6">{children}</div>
+          <div className="flex flex-1 flex-col gap-4 p-4 md:p-6 min-w-0 max-w-full overflow-x-hidden">
+            {children}
+          </div>
         </SidebarInset>
       </SidebarProvider>
     </AuthProvider>
