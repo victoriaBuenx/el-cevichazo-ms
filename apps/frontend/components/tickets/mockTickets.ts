@@ -1,0 +1,162 @@
+import type { Ticket } from "@/types/ticket";
+
+export const PROVEEDORES_DISPONIBLES = [
+  { id: "prov-1", nombre: "Mariscos y Pescados del Pacífico" },
+  { id: "prov-2", nombre: "Distribuidora de Hielo San Juan" },
+  { id: "prov-3", nombre: "Agrícola La Ceiba (Verduras y Cítricos)" },
+  { id: "prov-4", nombre: "Ostionería y Almejas El Rinconcito" },
+  { id: "prov-5", nombre: "Abarrotes y Especias Mayoreo del Noroeste" },
+  { id: "prov-6", nombre: "Bebidas y Cervecería Modelo del Pacífico" },
+  { id: "prov-7", nombre: "Empaques y Desechables Ecológicos Culiacán" },
+  { id: "prov-8", nombre: "Gas y Combustibles del Valle" },
+];
+
+export const MOCK_TICKETS: Ticket[] = [
+  {
+    id: "tk-001",
+    folio: "TK-2026-0089",
+    fecha: "2026-11-04",
+    proveedorId: "prov-1",
+    proveedorNombre: "Mariscos y Pescados del Pacífico",
+    descripcion: "Camarón azul 25kg, pulpo y filete de robalo fresco",
+    importe: 7850,
+    metodoPago: "transferencia",
+    estadoPago: "pagado",
+    observaciones:
+      "Entrega a primera hora en cocina matriz. Factura #F-4412 adjunta.",
+    comprobanteUrl:
+      "https://images.unsplash.com/photo-1554415707-9e4466b88738?auto=format&fit=crop&w=800&q=80",
+    comprobanteNombre: "ticket_mariscos_pacifico_nov04.jpg",
+    comprobanteTransferenciaUrl:
+      "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    registradoPor: "Lucía (Caja Mañana)",
+    createdAt: "2026-11-04T08:30:00Z",
+  },
+  {
+    id: "tk-002",
+    folio: "TK-2026-0088",
+    fecha: "2026-11-04",
+    proveedorId: "prov-2",
+    proveedorNombre: "Distribuidora de Hielo San Juan",
+    descripcion: "20 bolsas de hielo purificado para barra fría y bar",
+    importe: 960,
+    metodoPago: "efectivo",
+    estadoPago: "pagado",
+    observaciones: "Pagado en efectivo con fondo de caja chica al repartidor.",
+    comprobanteUrl:
+      "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=800&q=80",
+    comprobanteNombre: "remision_hielo_sanjuan.jpg",
+    registradoPor: "Lucía (Caja Mañana)",
+    createdAt: "2026-11-04T09:15:00Z",
+  },
+  {
+    id: "tk-003",
+    folio: "TK-2026-0087",
+    fecha: "2026-11-03",
+    proveedorId: "prov-3",
+    proveedorNombre: "Agrícola La Ceiba (Verduras y Cítricos)",
+    descripcion: "2 rejas limón colima, aguacate hass y 30kg cebolla morada",
+    importe: 3420,
+    metodoPago: "transferencia",
+    estadoPago: "pendiente",
+    observaciones:
+      "Mercancía recibida y pesada en cocina. Pendiente de que el dueño realice la transferencia bancaria (cuenta BBVA del proveedor).",
+    comprobanteUrl:
+      "https://images.unsplash.com/photo-1554415707-9e4466b88738?auto=format&fit=crop&w=800&q=80",
+    comprobanteNombre: "nota_remision_ceiba_439.jpg",
+    registradoPor: "Carlos (Caja Tarde)",
+    createdAt: "2026-11-03T16:20:00Z",
+  },
+  {
+    id: "tk-004",
+    folio: "TK-2026-0086",
+    fecha: "2026-11-03",
+    proveedorId: "prov-4",
+    proveedorNombre: "Ostionería y Almejas El Rinconcito",
+    descripcion: "15 docenas de ostión de piedra en su concha",
+    importe: 2160,
+    metodoPago: "efectivo",
+    estadoPago: "pagado",
+    observaciones:
+      "Frescura verificada por jefe de barra. Liquidado en efectivo.",
+    comprobanteUrl:
+      "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=800&q=80",
+    comprobanteNombre: "ticket_ostioneria_nov03.jpg",
+    registradoPor: "Carlos (Caja Tarde)",
+    createdAt: "2026-11-03T17:45:00Z",
+  },
+  {
+    id: "tk-005",
+    folio: "TK-2026-0085",
+    fecha: "2026-11-02",
+    proveedorId: "prov-5",
+    proveedorNombre: "Abarrotes y Especias Mayoreo del Noroeste",
+    descripcion: "Cajas de Clamato, salsas negras especiales y sal de mar",
+    importe: 4120,
+    metodoPago: "transferencia",
+    estadoPago: "pagado",
+    observaciones:
+      "Comprobante de SPEI recibido y validado contra nota de entrega.",
+    comprobanteUrl:
+      "https://images.unsplash.com/photo-1554415707-9e4466b88738?auto=format&fit=crop&w=800&q=80",
+    comprobanteNombre: "factura_abarrotes_mayoreo.jpg",
+    comprobanteTransferenciaUrl:
+      "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    registradoPor: "Lucía (Caja Mañana)",
+    createdAt: "2026-11-02T11:00:00Z",
+  },
+  {
+    id: "tk-006",
+    folio: "TK-2026-0084",
+    fecha: "2026-11-01",
+    proveedorId: "prov-7",
+    proveedorNombre: "Empaques y Desechables Ecológicos Culiacán",
+    descripcion: "500 contenedores cevicheros biodegradables 1L y cubiertos",
+    importe: 2350,
+    metodoPago: "transferencia",
+    estadoPago: "pendiente",
+    observaciones:
+      "Insumos en almacén. En espera de envío de comprobante bancario por administración.",
+    comprobanteUrl:
+      "https://images.unsplash.com/photo-1554415707-9e4466b88738?auto=format&fit=crop&w=800&q=80",
+    comprobanteNombre: "pedido_empaques_cevi.png",
+    registradoPor: "Lucía (Caja Mañana)",
+    createdAt: "2026-11-01T14:10:00Z",
+  },
+  {
+    id: "tk-007",
+    folio: "TK-2026-0083",
+    fecha: "2026-10-31",
+    proveedorId: "prov-8",
+    proveedorNombre: "Gas y Combustibles del Valle",
+    descripcion: "Carga de 120 litros gas LP para freidoras y estufones",
+    importe: 1780,
+    metodoPago: "efectivo",
+    estadoPago: "pagado",
+    observaciones: "Nota de servicio #8911 con sello de pagado.",
+    comprobanteUrl:
+      "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=800&q=80",
+    comprobanteNombre: "recibo_gas_oct31.jpg",
+    registradoPor: "Carlos (Caja Tarde)",
+    createdAt: "2026-10-31T18:00:00Z",
+  },
+  {
+    id: "tk-008",
+    folio: "TK-2026-0082",
+    fecha: "2026-10-30",
+    proveedorId: "prov-6",
+    proveedorNombre: "Bebidas y Cervecería Modelo del Pacífico",
+    descripcion: "2 barriles cerveza clara y 10 cartones refresco retornable",
+    importe: 5400,
+    metodoPago: "transferencia",
+    estadoPago: "pagado",
+    observaciones: "Transferencia liquidada por gerencia previa descarga.",
+    comprobanteUrl:
+      "https://images.unsplash.com/photo-1554415707-9e4466b88738?auto=format&fit=crop&w=800&q=80",
+    comprobanteNombre: "remision_cerveceria_pacifico.pdf",
+    comprobanteTransferenciaUrl:
+      "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    registradoPor: "Admin General",
+    createdAt: "2026-10-30T10:30:00Z",
+  },
+];
