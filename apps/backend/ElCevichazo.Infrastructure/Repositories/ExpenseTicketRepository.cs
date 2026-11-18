@@ -26,6 +26,7 @@ public class ExpenseTicketRepository : IExpenseTicketRepository
     {
         return await _dbContext.ExpenseTickets
             .Include(t => t.Supplier)
+            .Include(t => t.RegisteredByUser)
             .AsNoTracking()
             .OrderByDescending(t => t.ExpenseDate)
             .ToListAsync();

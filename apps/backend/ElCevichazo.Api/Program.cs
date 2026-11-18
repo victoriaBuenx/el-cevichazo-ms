@@ -84,7 +84,10 @@ builder.Services.AddScoped<GetSuppliersUseCase>();
 builder.Services.AddScoped<RegisterSuppliersUseCase>();
 builder.Services.AddScoped<UpdateSupplierUseCase>();
 builder.Services.AddScoped<UpdateSupplierStatusUseCase>();
+builder.Services.AddScoped<GetExpenseTicketsUseCase>();
 builder.Services.AddScoped<RegisterExpenseTicketUseCase>();
+builder.Services.AddScoped<UpdateExpenseTicketUseCase>();
+builder.Services.AddScoped<DeleteExpenseTicketUseCase>();
 
 
 builder.Services.AddControllers();
