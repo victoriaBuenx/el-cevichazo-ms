@@ -12,6 +12,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using ElCevichazo.Application.Suppliers.Interfaces;
 using ElCevichazo.Application.Suppliers.UseCases;
+using ElCevichazo.Application.ExpenseTickets.Interfaces;
+using ElCevichazo.Application.ExpenseTickets.UseCases;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -70,6 +72,7 @@ builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<ISuppliersRepository, SupplierRepository>();
+builder.Services.AddScoped<IExpenseTicketRepository, ExpenseTicketRepository>();
 
 builder.Services.AddScoped<LoginUseCase>();
 builder.Services.AddScoped<LogoutUseCase>();
@@ -81,6 +84,7 @@ builder.Services.AddScoped<GetSuppliersUseCase>();
 builder.Services.AddScoped<RegisterSuppliersUseCase>();
 builder.Services.AddScoped<UpdateSupplierUseCase>();
 builder.Services.AddScoped<UpdateSupplierStatusUseCase>();
+builder.Services.AddScoped<RegisterExpenseTicketUseCase>();
 
 
 builder.Services.AddControllers();
