@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { TrashIcon, CheckIcon } from "@phosphor-icons/react";
+import { TrashIcon } from "@phosphor-icons/react";
 import { TicketsMetrics } from "./ticketsMetrics";
 import {
   TicketsFiltros,
@@ -12,6 +12,7 @@ import {
 import { TicketsTable } from "./ticketsTable";
 import { TicketsForm } from "./ticketsForm";
 import { TicketDetalleDialog } from "./ticketDetalleDialog";
+import { TicketPagarDialog } from "./ticketPagarDialog";
 import { ConfirmarAcción } from "../shared/confirmarAcción";
 import { MOCK_TICKETS } from "./mockTickets";
 import type { Ticket, CrearTicketInput } from "@/types/ticket";
@@ -20,32 +21,28 @@ interface TicketsGridProps {
   initialTickets?: Ticket[];
 }
 
-export function TicketsGrid({
-  initialTickets = MOCK_TICKETS,
-}: TicketsGridProps) {
+export function TicketsGrid({ initialTickets = MOCK_TICKETS }: TicketsGridProps) {
   const [tickets, setTickets] = useState<Ticket[]>(initialTickets);
 
+  // Estados de Filtros
   const [busqueda, setBusqueda] = useState("");
   const [periodo, setPeriodo] = useState<FiltroPeriodo>("todos");
   const [metodoPago, setMetodoPago] = useState<FiltroMetodoPago>("todos");
   const [estadoPago, setEstadoPago] = useState<FiltroEstadoPago>("todos");
 
+  // Modales
   const [formAbierto, setFormAbierto] = useState(false);
-  const [ticketSeleccionado, setTicketSeleccionado] = useState<Ticket | null>(
-    null,
-  );
+  const [ticketSeleccionado, setTicketSeleccionado] = useState<Ticket | null>(null);
 
   const [detalleAbierto, setDetalleAbierto] = useState(false);
   const [ticketDetalle, setTicketDetalle] = useState<Ticket | null>(null);
 
-  const [ticketParaEliminar, setTicketParaEliminar] = useState<Ticket | null>(
-    null,
-  );
+  const [ticketParaEliminar, setTicketParaEliminar] = useState<Ticket | null>(null);
   const [confirmarEliminar, setConfirmarEliminar] = useState(false);
 
-  const [ticketParaMarcarPagado, setTicketParaMarcarPagado] =
-    useState<Ticket | null>(null);
-  const [confirmarMarcarPagado, setConfirmarMarcarPagado] = useState(false);
+  // Modal para liquidar ticket y adjuntar comprobante SPEI
+  const [ticketParaPagar, setTicketParaPagar] = useState<Ticket | null>(null);
+  const [pagarAbierto, setPagarAbierto] = useState(false);
 
   const filtrosActivos =
     busqueda.trim() !== "" ||
@@ -60,6 +57,7 @@ export function TicketsGrid({
     setEstadoPago("todos");
   };
 
+  // Filtrado de tickets
   const ticketsFiltrados = useMemo(() => {
     const q = busqueda.trim().toLowerCase();
     const hoyStr = new Date().toISOString().split("T")[0];
@@ -73,21 +71,19 @@ export function TicketsGrid({
         const coincideDescripcion = t.descripcion.toLowerCase().includes(q);
         const coincideFolio = t.folio.toLowerCase().includes(q);
         const coincideObs = t.observaciones?.toLowerCase().includes(q);
-        if (
-          !coincideProveedor &&
-          !coincideDescripcion &&
-          !coincideFolio &&
-          !coincideObs
-        ) {
+        if (!coincideProveedor && !coincideDescripcion && !coincideFolio && !coincideObs) {
           return false;
         }
       }
+
       if (metodoPago !== "todos" && t.metodoPago !== metodoPago) {
         return false;
       }
+
       if (estadoPago !== "todos" && t.estadoPago !== estadoPago) {
         return false;
       }
+
       if (periodo === "hoy") {
         return t.fecha === hoyStr;
       } else if (periodo === "semana") {
@@ -101,6 +97,7 @@ export function TicketsGrid({
     });
   }, [tickets, busqueda, metodoPago, estadoPago, periodo]);
 
+  // Handlers
   const handleCrear = () => {
     setTicketSeleccionado(null);
     setFormAbierto(true);
@@ -128,26 +125,34 @@ export function TicketsGrid({
   };
 
   const handleSolicitarMarcarPagado = (ticket: Ticket) => {
-    setTicketParaMarcarPagado(ticket);
-    setConfirmarMarcarPagado(true);
+    setTicketParaPagar(ticket);
+    setPagarAbierto(true);
   };
 
-  const handleConfirmarMarcarPagado = () => {
-    if (!ticketParaMarcarPagado) return;
+  const handleConfirmarPago = (datos: {
+    ticketId: string;
+    comprobanteTransferenciaUrl?: string;
+    comprobanteTransferenciaNombre?: string;
+    referencia?: string;
+  }) => {
     setTickets((prev) =>
       prev.map((t) =>
-        t.id === ticketParaMarcarPagado.id
+        t.id === datos.ticketId
           ? {
               ...t,
               estadoPago: "pagado",
-              observaciones: t.observaciones
-                ? `${t.observaciones} • Transferencia confirmada por caja.`
-                : "Transferencia bancaria confirmada por caja.",
+              comprobanteTransferenciaUrl:
+                datos.comprobanteTransferenciaUrl ?? t.comprobanteTransferenciaUrl,
+              comprobanteTransferenciaNombre:
+                datos.comprobanteTransferenciaNombre ?? t.comprobanteTransferenciaNombre,
+              observaciones: datos.referencia
+                ? `${t.observaciones ? `${t.observaciones} • ` : ""}Ref SPEI: ${datos.referencia}`
+                : t.observaciones || "Transferencia confirmada y validada por caja.",
             }
           : t,
       ),
     );
-    setTicketParaMarcarPagado(null);
+    setTicketParaPagar(null);
   };
 
   const handleGuardarTicket = (datos: CrearTicketInput & { id?: string }) => {
@@ -168,6 +173,10 @@ export function TicketsGrid({
                 comprobanteUrl: datos.comprobanteUrl ?? t.comprobanteUrl,
                 comprobanteNombre:
                   datos.comprobanteNombre ?? t.comprobanteNombre,
+                comprobanteTransferenciaUrl:
+                  datos.comprobanteTransferenciaUrl ?? t.comprobanteTransferenciaUrl,
+                comprobanteTransferenciaNombre:
+                  datos.comprobanteTransferenciaNombre ?? t.comprobanteTransferenciaNombre,
               }
             : t,
         ),
@@ -189,6 +198,8 @@ export function TicketsGrid({
           datos.comprobanteUrl ||
           "https://images.unsplash.com/photo-1554415707-9e4466b88738?auto=format&fit=crop&w=800&q=80",
         comprobanteNombre: datos.comprobanteNombre || "comprobante_caja.jpg",
+        comprobanteTransferenciaUrl: datos.comprobanteTransferenciaUrl ?? null,
+        comprobanteTransferenciaNombre: datos.comprobanteTransferenciaNombre ?? null,
         registradoPor: "Caja Turno Actual",
         createdAt: new Date().toISOString(),
       };
@@ -198,7 +209,10 @@ export function TicketsGrid({
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-full min-w-0">
+      {/* 1. Indicadores (KPIs) */}
       <TicketsMetrics tickets={tickets} />
+
+      {/* 2. Filtros y Búsqueda */}
       <TicketsFiltros
         busqueda={busqueda}
         onBusquedaChange={setBusqueda}
@@ -212,6 +226,8 @@ export function TicketsGrid({
         onLimpiarFiltros={handleLimpiarFiltros}
         filtrosActivos={filtrosActivos}
       />
+
+      {/* 3. Tabla de Tickets */}
       <TicketsTable
         tickets={ticketsFiltrados}
         onVerDetalle={handleVerDetalle}
@@ -219,12 +235,16 @@ export function TicketsGrid({
         onEliminar={handleSolicitarEliminar}
         onCambiarEstado={handleSolicitarMarcarPagado}
       />
+
+      {/* 4. Modal para Crear o Editar Ticket */}
       <TicketsForm
         abierto={formAbierto}
         onAbiertoChange={setFormAbierto}
         ticket={ticketSeleccionado}
         onGuardar={handleGuardarTicket}
       />
+
+      {/* 5. Modal de Ficha Técnica / Detalle del Ticket */}
       <TicketDetalleDialog
         abierto={detalleAbierto}
         onAbiertoChange={setDetalleAbierto}
@@ -235,6 +255,16 @@ export function TicketsGrid({
         }}
         onMarcarComoPagado={handleSolicitarMarcarPagado}
       />
+
+      {/* 6. Modal para Validar Pago y Adjuntar Ficha SPEI */}
+      <TicketPagarDialog
+        abierto={pagarAbierto}
+        onAbiertoChange={setPagarAbierto}
+        ticket={ticketParaPagar}
+        onConfirmarPago={handleConfirmarPago}
+      />
+
+      {/* 7. Modal de Confirmación para Eliminar */}
       <ConfirmarAcción
         abierto={confirmarEliminar}
         onAbiertoChange={setConfirmarEliminar}
@@ -245,17 +275,6 @@ export function TicketsGrid({
         textoConfirmar="Sí, eliminar"
         textoCancelar="Cancelar"
         onConfirmar={handleConfirmarEliminar}
-      />
-      <ConfirmarAcción
-        abierto={confirmarMarcarPagado}
-        onAbiertoChange={setConfirmarMarcarPagado}
-        variante="success"
-        icono={<CheckIcon weight="duotone" />}
-        titulo={`¿Marcar como pagado el ticket ${ticketParaMarcarPagado?.folio}?`}
-        descripción={`Se confirmará la recepción de la transferencia realizada por el dueño por un importe de $${ticketParaMarcarPagado?.importe.toLocaleString("es-MX")}.`}
-        textoConfirmar="Sí, confirmar pago"
-        textoCancelar="Cancelar"
-        onConfirmar={handleConfirmarMarcarPagado}
       />
     </div>
   );

@@ -13,6 +13,7 @@ import {
   BankIcon,
   MoneyIcon,
   InfoIcon,
+  PaperclipIcon,
 } from "@phosphor-icons/react";
 import {
   Dialog,
@@ -103,11 +104,21 @@ function TicketsFormContent({
   const [comprobanteNombre, setComprobanteNombre] = useState<string | null>(
     ticket?.comprobanteNombre ?? null,
   );
+
+  const [speiUrl, setSpeiUrl] = useState<string | null>(
+    ticket?.comprobanteTransferenciaUrl ?? null,
+  );
+  const [speiNombre, setSpeiNombre] = useState<string | null>(
+    ticket?.comprobanteTransferenciaNombre ?? null,
+  );
+  const [mostrarSubidaSpei, setMostrarSubidaSpei] = useState(
+    Boolean(ticket?.comprobanteTransferenciaUrl),
+  );
+
   const [error, setError] = useState("");
 
   const handleMetodoChange = (nuevoMetodo: MetodoPago) => {
     setMetodoPago(nuevoMetodo);
-    // Si cambia a transferencia por defecto sugiere pendiente para revisión de caja/dueño
     if (!ticket) {
       if (nuevoMetodo === "transferencia") {
         setEstadoPago("pendiente");
@@ -117,19 +128,34 @@ function TicketsFormContent({
     }
   };
 
-  const handleArchivoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTicketArchivoChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = e.target.files?.[0];
     if (file) {
       setComprobanteNombre(file.name);
-      // Crear URL de previsualización local
       const preview = URL.createObjectURL(file);
       setComprobanteUrl(preview);
     }
   };
 
-  const handleQuitarArchivo = () => {
+  const handleQuitarTicketArchivo = () => {
     setComprobanteUrl(null);
     setComprobanteNombre(null);
+  };
+
+  const handleSpeiArchivoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSpeiNombre(file.name);
+      const preview = URL.createObjectURL(file);
+      setSpeiUrl(preview);
+    }
+  };
+
+  const handleQuitarSpeiArchivo = () => {
+    setSpeiUrl(null);
+    setSpeiNombre(null);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -164,10 +190,19 @@ function TicketsFormContent({
       observaciones: observaciones.trim() || undefined,
       comprobanteUrl: comprobanteUrl || undefined,
       comprobanteNombre: comprobanteNombre || undefined,
+      comprobanteTransferenciaUrl:
+        metodoPago === "transferencia" ? speiUrl || undefined : undefined,
+      comprobanteTransferenciaNombre:
+        metodoPago === "transferencia" ? speiNombre || undefined : undefined,
     });
 
     onCerrar();
   };
+
+  const esTransferencia = metodoPago === "transferencia";
+  const debeMostrarCajaSpei =
+    esTransferencia &&
+    (estadoPago === "pagado" || mostrarSubidaSpei || Boolean(speiUrl));
 
   return (
     <>
@@ -188,8 +223,8 @@ function TicketsFormContent({
 
             <DialogDescription className="text-xs text-muted-foreground">
               {esEdicion
-                ? "Modifica los datos del comprobante, método de pago o archivo adjunto."
-                : "Captura el gasto operativo, selecciona el proveedor y adjunta el comprobante del ticket."}
+                ? "Modifica los datos del comprobante, método de pago y archivos adjuntos."
+                : "Captura el gasto operativo, selecciona el proveedor y adjunta los comprobantes correspondientes."}
             </DialogDescription>
           </DialogHeader>
         </div>
@@ -234,7 +269,6 @@ function TicketsFormContent({
                 >
                   Fecha del gasto *
                 </FieldLabel>
-
                 <div className="relative">
                   <CalendarBlankIcon
                     className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
@@ -250,7 +284,6 @@ function TicketsFormContent({
                   />
                 </div>
               </Field>
-
               <Field>
                 <FieldLabel
                   htmlFor="importe"
@@ -258,7 +291,6 @@ function TicketsFormContent({
                 >
                   Importe total ($ MXN) *
                 </FieldLabel>
-
                 <div className="relative">
                   <CurrencyDollarIcon
                     className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
@@ -315,7 +347,6 @@ function TicketsFormContent({
                     <MoneyIcon className="size-4" weight="duotone" />
                     <span>Efectivo</span>
                   </button>
-
                   <button
                     type="button"
                     onClick={() => handleMetodoChange("transferencia")}
@@ -348,7 +379,6 @@ function TicketsFormContent({
                     <span className="size-2 rounded-full bg-emerald-600" />
                     <span>Pagado</span>
                   </button>
-
                   <button
                     type="button"
                     onClick={() => setEstadoPago("pendiente")}
@@ -364,7 +394,7 @@ function TicketsFormContent({
                 </div>
               </Field>
             </div>
-            {metodoPago === "transferencia" && (
+            {esTransferencia && (
               <div className="rounded-lg border border-sky-200 bg-sky-50/70 p-3 text-xs text-sky-800 dark:border-sky-900 dark:bg-sky-950/30 dark:text-sky-300 flex items-start gap-2.5">
                 <InfoIcon
                   className="size-4 shrink-0 text-sky-600 mt-0.5"
@@ -372,17 +402,23 @@ function TicketsFormContent({
                 />
                 <p className="leading-relaxed">
                   <strong>Flujo operativo:</strong> Los pagos por transferencia
-                  los realiza el dueño del restaurante. Caja captura el gasto y
-                  una vez que recibe la ficha de transferencia, se marca como
-                  pagado adjuntando el comprobante.
+                  los realiza el dueño del restaurante. Caja captura el ticket
+                  del proveedor y, una vez recibida la ficha de pago SPEI, se
+                  valida y vincula al comprobante.
                 </p>
               </div>
             )}
+            <Separator />
             <Field>
-              <FieldLabel className="text-xs font-semibold text-foreground">
-                Fotografía o comprobante del ticket
-              </FieldLabel>
-
+              <div className="flex items-center justify-between">
+                <FieldLabel className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                  <ReceiptIcon
+                    className="size-4 text-primary"
+                    weight="duotone"
+                  />
+                  Ticket o nota física del proveedor
+                </FieldLabel>
+              </div>
               {comprobanteUrl ? (
                 <div className="flex items-center justify-between rounded-lg border border-border/80 bg-muted/20 p-3">
                   <div className="flex items-center gap-3 overflow-hidden">
@@ -395,15 +431,11 @@ function TicketsFormContent({
                       <span className="truncate text-xs font-medium text-foreground">
                         {comprobanteNombre || "ticket_adjunto.jpg"}
                       </span>
-                      <span className="text-[11px] text-muted-foreground">
-                        Comprobante listo para guardar
-                      </span>
                     </div>
                   </div>
-
                   <button
                     type="button"
-                    onClick={handleQuitarArchivo}
+                    onClick={handleQuitarTicketArchivo}
                     className="inline-flex items-center gap-1 text-xs text-destructive hover:underline cursor-pointer"
                   >
                     <XCircleIcon className="size-4" weight="fill" />
@@ -411,26 +443,105 @@ function TicketsFormContent({
                   </button>
                 </div>
               ) : (
-                <label className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border/80 p-5 hover:border-primary/50 hover:bg-muted/30 transition-colors cursor-pointer text-center">
-                  <div className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary mb-2">
-                    <UploadSimpleIcon className="size-5" weight="bold" />
+                <label className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border/80 p-4 hover:border-primary/50 hover:bg-muted/30 transition-colors cursor-pointer text-center">
+                  <div className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary mb-1.5">
+                    <UploadSimpleIcon className="size-4" weight="bold" />
                   </div>
                   <span className="text-xs font-semibold text-foreground">
-                    Subir foto o escaneo del ticket
+                    Subir foto o escaneo del ticket del proveedor
                   </span>
                   <span className="text-[11px] text-muted-foreground mt-0.5">
-                    JPG, PNG o PDF hasta 10 MB
+                    Foto de remisión o factura física (JPG, PNG o PDF)
                   </span>
                   <input
                     type="file"
                     accept="image/*,.pdf"
-                    onChange={handleArchivoChange}
+                    onChange={handleTicketArchivoChange}
                     className="hidden"
                   />
                 </label>
               )}
             </Field>
+            {esTransferencia && (
+              <Field>
+                <div className="flex items-center justify-between">
+                  <FieldLabel className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                    <BankIcon
+                      className="size-4 text-emerald-600"
+                      weight="duotone"
+                    />
+                    Comprobante de transferencia SPEI
+                  </FieldLabel>
+                </div>
+                {debeMostrarCajaSpei ? (
+                  speiUrl ? (
+                    <div className="flex items-center justify-between rounded-lg border border-emerald-200 bg-emerald-50/30 p-3 dark:border-emerald-900/50 dark:bg-emerald-950/20">
+                      <div className="flex items-center gap-3 overflow-hidden">
+                        <img
+                          src={speiUrl}
+                          alt="Comprobante de transferencia SPEI"
+                          className="size-12 rounded-md object-cover border border-emerald-300 dark:border-emerald-800"
+                        />
+                        <div className="flex flex-col overflow-hidden">
+                          <span className="truncate text-xs font-semibold text-foreground">
+                            {speiNombre || "comprobante_spei.jpg"}
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleQuitarSpeiArchivo}
+                        className="inline-flex items-center gap-1 text-xs text-destructive hover:underline cursor-pointer"
+                      >
+                        <XCircleIcon className="size-4" weight="fill" />
+                        <span>Quitar</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-emerald-300/80 bg-emerald-50/15 p-4 hover:border-emerald-500 hover:bg-emerald-50/30 transition-colors cursor-pointer text-center">
+                      <div className="flex size-9 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 mb-1.5">
+                        <UploadSimpleIcon className="size-4" weight="bold" />
+                      </div>
+                      <span className="text-xs font-semibold text-foreground">
+                        Subir captura o PDF de la transferencia SPEI
+                      </span>
+                      <span className="text-[11px] text-muted-foreground mt-0.5">
+                        Comprobante enviado por el dueño del restaurante
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*,.pdf"
+                        onChange={handleSpeiArchivoChange}
+                        className="hidden"
+                      />
+                    </label>
+                  )
+                ) : (
+                  <div className="rounded-lg border border-border/80 bg-muted/20 p-3.5 flex items-center justify-between">
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-xs font-medium text-foreground">
+                        Transferencia bancaria pendiente
+                      </span>
+                      <span className="text-[11px] text-muted-foreground">
+                        Podrás adjuntar la ficha cuando el dueño realice el
+                        pago.
+                      </span>
+                    </div>
 
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setMostrarSubidaSpei(true)}
+                      className="text-xs font-semibold shrink-0 gap-1.5 border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                    >
+                      <PaperclipIcon className="size-3.5" />
+                      Adjuntar
+                    </Button>
+                  </div>
+                )}
+              </Field>
+            )}
             <Separator />
             <Field>
               <div className="flex items-center justify-between">
@@ -444,7 +555,6 @@ function TicketsFormContent({
                   {observaciones.length}/500
                 </span>
               </div>
-
               <div className="relative">
                 <ChatCenteredTextIcon
                   className="pointer-events-none absolute left-3 top-3 size-4 text-muted-foreground"
@@ -461,7 +571,6 @@ function TicketsFormContent({
               </div>
             </Field>
           </FieldGroup>
-
           {error && (
             <p
               role="alert"
@@ -471,9 +580,7 @@ function TicketsFormContent({
             </p>
           )}
         </div>
-
         <Separator />
-
         <DialogFooter className="px-6 py-4 bg-muted/30 shrink-0">
           <Button
             type="button"
@@ -484,7 +591,6 @@ function TicketsFormContent({
           >
             Cancelar
           </Button>
-
           <Button
             type="submit"
             size="default"

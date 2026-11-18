@@ -126,7 +126,7 @@ export function TicketsMetrics({ tickets }: TicketsMetricsProps) {
             <BankIcon className="size-3.5 text-amber-600" weight="duotone" />
             <span className="truncate">
               {ticketsPendientes.length > 0
-                ? "En espera de transferencia bancaria del dueño"
+                ? "En espera de transferencia bancaria"
                 : "Al corriente, sin transferencias pendientes"}
             </span>
           </div>

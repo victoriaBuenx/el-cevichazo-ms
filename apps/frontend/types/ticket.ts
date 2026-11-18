@@ -16,6 +16,7 @@ export type Ticket = {
   comprobanteUrl?: string | null;
   comprobanteNombre?: string | null;
   comprobanteTransferenciaUrl?: string | null;
+  comprobanteTransferenciaNombre?: string | null;
   registradoPor?: string;
   createdAt: string;
 };
@@ -32,6 +33,7 @@ export type CrearTicketInput = {
   comprobanteUrl?: string;
   comprobanteNombre?: string;
   comprobanteTransferenciaUrl?: string;
+  comprobanteTransferenciaNombre?: string;
 };
 
 export type ActualizarTicketInput = {
@@ -47,4 +49,5 @@ export type ActualizarTicketInput = {
   comprobanteUrl?: string;
   comprobanteNombre?: string;
   comprobanteTransferenciaUrl?: string;
+  comprobanteTransferenciaNombre?: string;
 };

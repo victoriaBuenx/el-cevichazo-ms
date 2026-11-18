@@ -78,7 +78,7 @@ export function TicketsTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[105px] px-3">Fecha / Folio</TableHead>
+            <TableHead className="w-[105px] px-3">Fecha</TableHead>
             <TableHead className="w-[170px] px-3">Proveedor</TableHead>
             <TableHead className="min-w-0 px-3">Descripción</TableHead>
             <TableHead className="w-[105px] px-3">Importe</TableHead>
@@ -219,17 +219,6 @@ export function TicketsTable({
                 </TableCell>
                 <TableCell className="px-3 py-2.5 text-right">
                   <div className="flex items-center justify-end gap-0.5">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="size-7 p-0 text-muted-foreground hover:text-foreground hover:bg-muted"
-                      onClick={() => onVerDetalle(t)}
-                      title="Consultar detalles y comprobante"
-                      aria-label="Consultar detalles"
-                    >
-                      <EyeIcon className="size-3.5" />
-                    </Button>
                     {!estaPagado && (
                       <Button
                         type="button"

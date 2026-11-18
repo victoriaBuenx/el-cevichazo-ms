@@ -66,7 +66,6 @@ export function TicketDetalleDialog({
   return (
     <Dialog open={abierto} onOpenChange={onAbiertoChange}>
       <DialogContent className="sm:max-w-xl p-0 gap-0 overflow-hidden max-h-[92vh] flex flex-col">
-        {/* Cabecera con degradado */}
         <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent px-6 pt-6 pb-5 shrink-0">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-3">
@@ -79,9 +78,6 @@ export function TicketDetalleDialog({
               <div className="flex flex-col gap-1 overflow-hidden">
                 <DialogHeader className="gap-0.5 text-left">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-md">
-                      {ticket.folio}
-                    </span>
                     <Badge
                       variant={estaPagado ? "secondary" : "destructive"}
                       className={
@@ -97,7 +93,7 @@ export function TicketDetalleDialog({
                             : "bg-amber-600 animate-pulse"
                         }`}
                       />
-                      {estaPagado ? "Pagado" : "Pendiente de pago"}
+                      {estaPagado ? "Pagado" : "Pendiente"}
                     </Badge>
                   </div>
                   <DialogTitle className="font-bold text-base leading-snug text-foreground mt-1">
@@ -171,12 +167,12 @@ export function TicketDetalleDialog({
             </div>
           )}
           {esTransferencia && !estaPagado && (
-            <div className="rounded-lg border border-amber-200 bg-amber-50/70 p-3 text-xs text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300 flex items-start gap-2.5">
+            <div className="rounded-lg border border-amber-200 bg-amber-50/70 p-3.5 text-xs text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300 flex items-start gap-2.5">
               <HourglassHighIcon
                 className="size-4 shrink-0 text-amber-600 mt-0.5"
                 weight="fill"
               />
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2.5 w-full">
                 <p className="leading-relaxed">
                   <strong>Transferencia pendiente:</strong> El dueño del
                   restaurante realiza el pago bancario. Una vez realizada la
@@ -189,8 +185,8 @@ export function TicketDetalleDialog({
                     size="sm"
                     className="w-fit bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 font-semibold text-xs"
                     onClick={() => {
-                      onMarcarComoPagado(ticket);
                       onAbiertoChange(false);
+                      onMarcarComoPagado(ticket);
                     }}
                   >
                     <CheckIcon className="size-3.5" weight="bold" />
@@ -200,12 +196,38 @@ export function TicketDetalleDialog({
               </div>
             </div>
           )}
+
+          {!esTransferencia && !estaPagado && onMarcarComoPagado && (
+            <div className="rounded-lg border border-amber-200 bg-amber-50/70 p-3.5 text-xs text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <HourglassHighIcon
+                  className="size-4 text-amber-600 shrink-0"
+                  weight="fill"
+                />
+                <span>
+                  Pago en efectivo pendiente de liquidación con fondo de caja.
+                </span>
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 font-semibold text-xs shrink-0"
+                onClick={() => {
+                  onAbiertoChange(false);
+                  onMarcarComoPagado(ticket);
+                }}
+              >
+                <CheckIcon className="size-3.5" weight="bold" />
+                Confirmar pago
+              </Button>
+            </div>
+          )}
           <Separator />
           <div className="flex flex-col gap-2.5">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                 <ReceiptIcon className="size-4 text-primary" weight="duotone" />
-                Comprobante / Fotografía del Ticket
+                Comprobante / fotografía del ticket
               </span>
               {ticket.comprobanteUrl && (
                 <a
@@ -242,40 +264,64 @@ export function TicketDetalleDialog({
               </div>
             )}
           </div>
-          {esTransferencia && ticket.comprobanteTransferenciaUrl && (
+          {esTransferencia && (
             <div className="flex flex-col gap-2.5 pt-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                  <BankIcon className="size-4 text-primary" weight="duotone" />
-                  Comprobante de Transferencia (SPEI / Dueño)
+                  <BankIcon
+                    className="size-4 text-emerald-600"
+                    weight="duotone"
+                  />
+                  Comprobante de Transferencia SPEI
                 </span>
 
-                <a
-                  href={ticket.comprobanteTransferenciaUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs text-primary hover:underline font-medium"
-                >
-                  <ArrowSquareOutIcon className="size-3.5" />
-                  Ver comprobante bancario
-                </a>
+                {ticket.comprobanteTransferenciaUrl && (
+                  <a
+                    href={ticket.comprobanteTransferenciaUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs text-primary hover:underline font-medium"
+                  >
+                    <ArrowSquareOutIcon className="size-3.5" />
+                    Ver comprobante bancario
+                  </a>
+                )}
               </div>
 
-              <div className="overflow-hidden rounded-lg border border-emerald-200 bg-emerald-50/20 dark:border-emerald-950/40">
-                <img
-                  src={ticket.comprobanteTransferenciaUrl}
-                  alt="Comprobante de Transferencia SPEI"
-                  className="w-full max-h-56 object-contain bg-black/5 dark:bg-black/20"
-                />
-                <div className="p-2.5 bg-background border-t border-border flex items-center justify-between text-xs text-emerald-700 dark:text-emerald-400">
-                  <span className="font-medium">
-                    SPEI liquidado y confirmado
-                  </span>
-                  <span className="text-[11px] text-muted-foreground">
-                    Validado por dueño
-                  </span>
+              {ticket.comprobanteTransferenciaUrl ? (
+                <div className="overflow-hidden rounded-lg border border-emerald-200 bg-emerald-50/20 dark:border-emerald-950/40">
+                  <img
+                    src={ticket.comprobanteTransferenciaUrl}
+                    alt="Comprobante de Transferencia SPEI"
+                    className="w-full max-h-56 object-contain bg-black/5 dark:bg-black/20"
+                  />
                 </div>
-              </div>
+              ) : estaPagado ? (
+                <div className="flex items-center justify-between rounded-lg border border-dashed border-border/80 p-3 bg-muted/10 text-xs text-muted-foreground">
+                  <span>
+                    Transferencia liquidada sin imagen de ficha SPEI adjunta.
+                  </span>
+                  {onMarcarComoPagado && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        onAbiertoChange(false);
+                        onMarcarComoPagado(ticket);
+                      }}
+                      className="text-xs font-semibold text-emerald-700 border-emerald-300"
+                    >
+                      Adjuntar ficha
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                <div className="rounded-lg border border-border/70 bg-muted/10 p-3 text-xs text-muted-foreground">
+                  Aún no se ha registrado la ficha de transferencia porque el
+                  ticket está pendiente de pago.
+                </div>
+              )}
             </div>
           )}
         </div>

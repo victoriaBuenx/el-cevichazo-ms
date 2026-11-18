@@ -22,6 +22,74 @@ namespace ElCevichazo.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("ElCevichazo.Domain.Entities.ExpenseTicket", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<DateTime>("ExpenseDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("PaidAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PaymentStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("RegisteredByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("SupplierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TransferVoucherOriginalName")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("TransferVoucherUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("VoucherOriginalName")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("VoucherUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RegisteredByUserId");
+
+                    b.HasIndex("SupplierId");
+
+                    b.ToTable("ExpenseTickets");
+                });
+
             modelBuilder.Entity("ElCevichazo.Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -65,7 +133,8 @@ namespace ElCevichazo.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
@@ -124,6 +193,24 @@ namespace ElCevichazo.Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("ElCevichazo.Domain.Entities.ExpenseTicket", b =>
+                {
+                    b.HasOne("ElCevichazo.Domain.Entities.User", "RegisteredByUser")
+                        .WithMany("RegisteredExpenseTickets")
+                        .HasForeignKey("RegisteredByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("ElCevichazo.Domain.Entities.Supplier", "Supplier")
+                        .WithMany("ExpenseTickets")
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("RegisteredByUser");
+
+                    b.Navigation("Supplier");
+                });
+
             modelBuilder.Entity("ElCevichazo.Domain.Entities.RefreshToken", b =>
                 {
                     b.HasOne("ElCevichazo.Domain.Entities.User", "User")
@@ -135,9 +222,16 @@ namespace ElCevichazo.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("ElCevichazo.Domain.Entities.Supplier", b =>
+                {
+                    b.Navigation("ExpenseTickets");
+                });
+
             modelBuilder.Entity("ElCevichazo.Domain.Entities.User", b =>
                 {
                     b.Navigation("RefreshTokens");
+
+                    b.Navigation("RegisteredExpenseTickets");
                 });
 #pragma warning restore 612, 618
         }
