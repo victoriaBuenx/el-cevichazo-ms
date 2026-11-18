@@ -23,4 +23,6 @@ public class Supplier
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+    public ICollection<ExpenseTicket> ExpenseTickets { get; set; } = new List<ExpenseTicket>();
 }

@@ -29,6 +29,7 @@ export const MOCK_TICKETS: Ticket[] = [
     comprobanteNombre: "ticket_mariscos_pacifico_nov04.jpg",
     comprobanteTransferenciaUrl:
       "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    comprobanteTransferenciaNombre: "comprobante_spei_bbva_mariscos.jpg",
     registradoPor: "Lucía (Caja Mañana)",
     createdAt: "2026-11-04T08:30:00Z",
   },
@@ -102,6 +103,7 @@ export const MOCK_TICKETS: Ticket[] = [
     comprobanteNombre: "factura_abarrotes_mayoreo.jpg",
     comprobanteTransferenciaUrl:
       "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    comprobanteTransferenciaNombre: "comprobante_spei_bbva_mariscos.jpg",
     registradoPor: "Lucía (Caja Mañana)",
     createdAt: "2026-11-02T11:00:00Z",
   },
@@ -156,6 +158,7 @@ export const MOCK_TICKETS: Ticket[] = [
     comprobanteNombre: "remision_cerveceria_pacifico.pdf",
     comprobanteTransferenciaUrl:
       "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+    comprobanteTransferenciaNombre: "comprobante_spei_bbva_mariscos.jpg",
     registradoPor: "Admin General",
     createdAt: "2026-10-30T10:30:00Z",
   },
