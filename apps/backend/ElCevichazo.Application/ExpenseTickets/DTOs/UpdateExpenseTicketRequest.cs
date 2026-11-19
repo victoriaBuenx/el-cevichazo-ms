@@ -28,13 +28,11 @@ public class UpdateExpenseTicketRequest
     [MaxLength(500, ErrorMessage = "Las observaciones no pueden exceder los 500 caracteres.")]
     public string? Notes { get; set; }
 
-    [MaxLength(500)]
     public string? VoucherUrl { get; set; }
 
     [MaxLength(255)]
     public string? VoucherOriginalName { get; set; }
 
-    [MaxLength(500)]
     public string? TransferVoucherUrl { get; set; }
 
     [MaxLength(255)]

@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { TrashIcon } from "@phosphor-icons/react";
 import { TicketsMetrics } from "./ticketsMetrics";
 import {
@@ -14,15 +15,28 @@ import { TicketsForm } from "./ticketsForm";
 import { TicketDetalleDialog } from "./ticketDetalleDialog";
 import { TicketPagarDialog } from "./ticketPagarDialog";
 import { ConfirmarAcción } from "../shared/confirmarAcción";
-import { MOCK_TICKETS } from "./mockTickets";
-import type { Ticket, CrearTicketInput } from "@/types/ticket";
+import {
+  eliminarTicketAction,
+  liquidarTicketAction,
+} from "@/actions/tickets/actions";
+import type { Ticket } from "@/types/ticket";
+import type { Proveedor } from "@/types/proveedor";
 
 interface TicketsGridProps {
   initialTickets?: Ticket[];
+  proveedores?: Proveedor[];
 }
 
-export function TicketsGrid({ initialTickets = MOCK_TICKETS }: TicketsGridProps) {
+export function TicketsGrid({
+  initialTickets = [],
+  proveedores = [],
+}: TicketsGridProps) {
+  const router = useRouter();
   const [tickets, setTickets] = useState<Ticket[]>(initialTickets);
+
+  useEffect(() => {
+    setTickets(initialTickets);
+  }, [initialTickets]);
 
   // Estados de Filtros
   const [busqueda, setBusqueda] = useState("");
@@ -118,9 +132,10 @@ export function TicketsGrid({ initialTickets = MOCK_TICKETS }: TicketsGridProps)
     setConfirmarEliminar(true);
   };
 
-  const handleConfirmarEliminar = () => {
+  const handleConfirmarEliminar = async () => {
     if (!ticketParaEliminar) return;
-    setTickets((prev) => prev.filter((t) => t.id !== ticketParaEliminar.id));
+    await eliminarTicketAction(ticketParaEliminar.id);
+    router.refresh();
     setTicketParaEliminar(null);
   };
 
@@ -129,82 +144,40 @@ export function TicketsGrid({ initialTickets = MOCK_TICKETS }: TicketsGridProps)
     setPagarAbierto(true);
   };
 
-  const handleConfirmarPago = (datos: {
+  const handleConfirmarPago = async (datos: {
     ticketId: string;
     comprobanteTransferenciaUrl?: string;
     comprobanteTransferenciaNombre?: string;
     referencia?: string;
   }) => {
-    setTickets((prev) =>
-      prev.map((t) =>
-        t.id === datos.ticketId
-          ? {
-              ...t,
-              estadoPago: "pagado",
-              comprobanteTransferenciaUrl:
-                datos.comprobanteTransferenciaUrl ?? t.comprobanteTransferenciaUrl,
-              comprobanteTransferenciaNombre:
-                datos.comprobanteTransferenciaNombre ?? t.comprobanteTransferenciaNombre,
-              observaciones: datos.referencia
-                ? `${t.observaciones ? `${t.observaciones} • ` : ""}Ref SPEI: ${datos.referencia}`
-                : t.observaciones || "Transferencia confirmada y validada por caja.",
-            }
-          : t,
-      ),
-    );
-    setTicketParaPagar(null);
-  };
+    const t = tickets.find((item) => item.id === datos.ticketId);
+    if (!t) return;
 
-  const handleGuardarTicket = (datos: CrearTicketInput & { id?: string }) => {
-    if (datos.id) {
-      setTickets((prev) =>
-        prev.map((t) =>
-          t.id === datos.id
-            ? {
-                ...t,
-                proveedorId: datos.proveedorId,
-                proveedorNombre: datos.proveedorNombre,
-                fecha: datos.fecha,
-                descripcion: datos.descripcion,
-                importe: datos.importe,
-                metodoPago: datos.metodoPago,
-                estadoPago: datos.estadoPago,
-                observaciones: datos.observaciones ?? null,
-                comprobanteUrl: datos.comprobanteUrl ?? t.comprobanteUrl,
-                comprobanteNombre:
-                  datos.comprobanteNombre ?? t.comprobanteNombre,
-                comprobanteTransferenciaUrl:
-                  datos.comprobanteTransferenciaUrl ?? t.comprobanteTransferenciaUrl,
-                comprobanteTransferenciaNombre:
-                  datos.comprobanteTransferenciaNombre ?? t.comprobanteTransferenciaNombre,
-              }
-            : t,
-        ),
-      );
-    } else {
-      const nuevoFolioNum = tickets.length + 90;
-      const nuevo: Ticket = {
-        id: `tk-${Date.now()}`,
-        folio: `TK-2026-00${nuevoFolioNum}`,
-        proveedorId: datos.proveedorId,
-        proveedorNombre: datos.proveedorNombre,
-        fecha: datos.fecha,
-        descripcion: datos.descripcion,
-        importe: datos.importe,
-        metodoPago: datos.metodoPago,
-        estadoPago: datos.estadoPago,
-        observaciones: datos.observaciones ?? null,
-        comprobanteUrl:
-          datos.comprobanteUrl ||
-          "https://images.unsplash.com/photo-1554415707-9e4466b88738?auto=format&fit=crop&w=800&q=80",
-        comprobanteNombre: datos.comprobanteNombre || "comprobante_caja.jpg",
-        comprobanteTransferenciaUrl: datos.comprobanteTransferenciaUrl ?? null,
-        comprobanteTransferenciaNombre: datos.comprobanteTransferenciaNombre ?? null,
-        registradoPor: "Caja Turno Actual",
-        createdAt: new Date().toISOString(),
-      };
-      setTickets((prev) => [nuevo, ...prev]);
-    }
+    await liquidarTicketAction({
+      id: t.id,
+      ticketExistente: {
+        id: t.id,
+        proveedorId: t.proveedorId,
+        proveedorNombre: t.proveedorNombre,
+        fecha: t.fecha,
+        descripcion: t.descripcion,
+        importe: t.importe,
+        metodoPago: t.metodoPago,
+        estadoPago: "pagado",
+        observaciones: datos.referencia
+          ? `${t.observaciones ? `${t.observaciones} • ` : ""}Ref SPEI: ${datos.referencia}`
+          : t.observaciones || undefined,
+        comprobanteUrl: t.comprobanteUrl || undefined,
+        comprobanteNombre: t.comprobanteNombre || undefined,
+        comprobanteTransferenciaUrl: datos.comprobanteTransferenciaUrl,
+        comprobanteTransferenciaNombre: datos.comprobanteTransferenciaNombre,
+      },
+      comprobanteTransferenciaUrl: datos.comprobanteTransferenciaUrl,
+      comprobanteTransferenciaNombre: datos.comprobanteTransferenciaNombre,
+    });
+
+    router.refresh();
+    setTicketParaPagar(null);
   };
 
   return (
@@ -241,7 +214,7 @@ export function TicketsGrid({ initialTickets = MOCK_TICKETS }: TicketsGridProps)
         abierto={formAbierto}
         onAbiertoChange={setFormAbierto}
         ticket={ticketSeleccionado}
-        onGuardar={handleGuardarTicket}
+        proveedores={proveedores}
       />
 
       {/* 5. Modal de Ficha Técnica / Detalle del Ticket */}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   ReceiptIcon,
   PencilSimpleIcon,
@@ -27,19 +28,24 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { PROVEEDORES_DISPONIBLES } from "./mockTickets";
+import {
+  crearTicketAction,
+  actualizarTicketAction,
+} from "@/actions/tickets/actions";
 import type {
   Ticket,
   MetodoPago,
   EstadoPago,
   CrearTicketInput,
 } from "@/types/ticket";
+import type { Proveedor } from "@/types/proveedor";
 
 interface TicketsFormProps {
   abierto: boolean;
   onAbiertoChange: (abierto: boolean) => void;
   ticket?: Ticket | null;
-  onGuardar: (datos: CrearTicketInput & { id?: string }) => void;
+  onGuardar?: (datos: CrearTicketInput & { id?: string }) => void;
+  proveedores?: Proveedor[];
 }
 
 export function TicketsForm({
@@ -47,6 +53,7 @@ export function TicketsForm({
   onAbiertoChange,
   ticket,
   onGuardar,
+  proveedores = [],
 }: TicketsFormProps) {
   const esEdicion = Boolean(ticket);
 
@@ -60,6 +67,7 @@ export function TicketsForm({
             ticket={ticket}
             onCerrar={() => onAbiertoChange(false)}
             onGuardar={onGuardar}
+            proveedores={proveedores}
           />
         )}
       </DialogContent>
@@ -72,17 +80,32 @@ function TicketsFormContent({
   ticket,
   onCerrar,
   onGuardar,
+  proveedores = [],
 }: {
   esEdicion: boolean;
   ticket?: Ticket | null;
   onCerrar: () => void;
-  onGuardar: (datos: CrearTicketInput & { id?: string }) => void;
+  onGuardar?: (datos: CrearTicketInput & { id?: string }) => void;
+  proveedores?: Proveedor[];
 }) {
+  const router = useRouter();
   const hoyStr = new Date().toISOString().split("T")[0];
 
-  const [proveedorId, setProveedorId] = useState(
-    ticket?.proveedorId ?? PROVEEDORES_DISPONIBLES[0].id,
-  );
+  const listaProveedores =
+    proveedores && proveedores.length > 0
+      ? proveedores.map((p) => ({
+          id: p.id,
+          name: p.name,
+          phone: "",
+          isActive: true,
+          createdAt: "",
+        }))
+      : [];
+
+  const defaultProveedorId =
+    ticket?.proveedorId ?? (listaProveedores[0]?.id || "");
+
+  const [proveedorId, setProveedorId] = useState(defaultProveedorId);
   const [fecha, setFecha] = useState(ticket?.fecha ?? hoyStr);
   const [descripcion, setDescripcion] = useState(ticket?.descripcion ?? "");
   const [importe, setImporte] = useState(
@@ -115,6 +138,7 @@ function TicketsFormContent({
     Boolean(ticket?.comprobanteTransferenciaUrl),
   );
 
+  const [cargando, setCargando] = useState(false);
   const [error, setError] = useState("");
 
   const handleMetodoChange = (nuevoMetodo: MetodoPago) => {
@@ -134,8 +158,13 @@ function TicketsFormContent({
     const file = e.target.files?.[0];
     if (file) {
       setComprobanteNombre(file.name);
-      const preview = URL.createObjectURL(file);
-      setComprobanteUrl(preview);
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === "string") {
+          setComprobanteUrl(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -148,8 +177,13 @@ function TicketsFormContent({
     const file = e.target.files?.[0];
     if (file) {
       setSpeiNombre(file.name);
-      const preview = URL.createObjectURL(file);
-      setSpeiUrl(preview);
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === "string") {
+          setSpeiUrl(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -158,7 +192,7 @@ function TicketsFormContent({
     setSpeiNombre(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -173,30 +207,60 @@ function TicketsFormContent({
       return;
     }
 
-    const provObj = PROVEEDORES_DISPONIBLES.find((p) => p.id === proveedorId);
+    const provObj = listaProveedores.find((p) => p.id === proveedorId);
     const proveedorNombre = provObj
-      ? provObj.nombre
+      ? provObj.name
       : "Proveedor no especificado";
 
-    onGuardar({
-      id: ticket?.id,
-      proveedorId,
-      proveedorNombre,
-      fecha,
-      descripcion: descripcion.trim(),
-      importe: importeNum,
-      metodoPago,
-      estadoPago,
-      observaciones: observaciones.trim() || undefined,
-      comprobanteUrl: comprobanteUrl || undefined,
-      comprobanteNombre: comprobanteNombre || undefined,
-      comprobanteTransferenciaUrl:
-        metodoPago === "transferencia" ? speiUrl || undefined : undefined,
-      comprobanteTransferenciaNombre:
-        metodoPago === "transferencia" ? speiNombre || undefined : undefined,
-    });
+    setCargando(true);
 
-    onCerrar();
+    try {
+      const payload = {
+        proveedorId,
+        proveedorNombre,
+        fecha,
+        descripcion: descripcion.trim(),
+        importe: importeNum,
+        metodoPago,
+        estadoPago,
+        observaciones: observaciones.trim() || undefined,
+        comprobanteUrl: comprobanteUrl || undefined,
+        comprobanteNombre: comprobanteNombre || undefined,
+        comprobanteTransferenciaUrl:
+          metodoPago === "transferencia" ? speiUrl || undefined : undefined,
+        comprobanteTransferenciaNombre:
+          metodoPago === "transferencia" ? speiNombre || undefined : undefined,
+      };
+
+      const resultado =
+        esEdicion && ticket
+          ? await actualizarTicketAction({
+              id: ticket.id,
+              ...payload,
+            })
+          : await crearTicketAction(payload);
+
+      if (!resultado.success) {
+        setError(resultado.message);
+        setCargando(false);
+        return;
+      }
+
+      onGuardar?.({
+        id: ticket?.id,
+        ...payload,
+      });
+
+      onCerrar();
+      router.refresh();
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Error inesperado al guardar el ticket.",
+      );
+      setCargando(false);
+    }
   };
 
   const esTransferencia = metodoPago === "transferencia";
@@ -253,9 +317,9 @@ function TicketsFormContent({
                   className="h-10 w-full rounded-md border border-input bg-input/20 pl-9 pr-3 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 cursor-pointer"
                   required
                 >
-                  {PROVEEDORES_DISPONIBLES.map((p) => (
+                  {listaProveedores.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.nombre}
+                      {p.name}
                     </option>
                   ))}
                 </select>
@@ -594,9 +658,14 @@ function TicketsFormContent({
           <Button
             type="submit"
             size="default"
-            className="gap-1.5 font-semibold"
+            disabled={cargando}
+            className="gap-1.5 font-semibold cursor-pointer"
           >
-            {esEdicion ? "Guardar cambios" : "Registrar ticket"}
+            {cargando
+              ? "Guardando..."
+              : esEdicion
+                ? "Guardar cambios"
+                : "Registrar ticket"}
           </Button>
         </DialogFooter>
       </form>

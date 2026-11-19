@@ -67,8 +67,7 @@ namespace ElCevichazo.Infrastructure.Migrations
                         .HasColumnType("character varying(255)");
 
                     b.Property<string>("TransferVoucherUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -78,8 +77,7 @@ namespace ElCevichazo.Infrastructure.Migrations
                         .HasColumnType("character varying(255)");
 
                     b.Property<string>("VoucherUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 

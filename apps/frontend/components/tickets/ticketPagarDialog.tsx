@@ -99,8 +99,13 @@ function TicketPagarDialogContent({
     const file = e.target.files?.[0];
     if (file) {
       setSpeiNombre(file.name);
-      const preview = URL.createObjectURL(file);
-      setSpeiUrl(preview);
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === "string") {
+          setSpeiUrl(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
       setError("");
     }
   };
@@ -289,10 +294,10 @@ function TicketPagarDialogContent({
         onAbiertoChange={setConfirmarAbierto}
         variante="success"
         icono={<CheckIcon weight="duotone" />}
-        titulo={`¿Marcar como pagado el ticket ${ticket.folio}?`}
+        titulo={`¿Marcar como pagado el ticket?`}
         descripción={
           esTransferencia
-            ? `Se confirmará la recepción de la transferencia realizada por el dueño por un importe de ${formatearMoneda(ticket.importe)}${speiNombre ? ` y se vinculará la ficha ${speiNombre}` : ""}.`
+            ? `Se confirmará la recepción de la transferencia realizada por el dueño por un importe de ${formatearMoneda(ticket.importe)}${speiNombre ? "" : ""}.`
             : `Se registrará como liquidado el importe de ${formatearMoneda(ticket.importe)} a ${ticket.proveedorNombre} en efectivo con fondo de caja chica.`
         }
         textoConfirmar="Sí, confirmar pago"
