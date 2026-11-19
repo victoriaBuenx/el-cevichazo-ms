@@ -1,6 +1,13 @@
 import { TicketsGrid } from "@/components/tickets/ticketsGrid";
+import { getTickets } from "@/services/tickets.service";
+import { getProveedores } from "@/services/proveedores.service";
 
-export default function TicketsPage() {
+export default async function TicketsPage() {
+  const [tickets, proveedores] = await Promise.all([
+    getTickets().catch(() => []),
+    getProveedores().catch(() => []),
+  ]);
+
   return (
     <div className="flex flex-col gap-6 w-full max-w-full min-w-0">
       <div className="flex flex-col gap-1">
@@ -11,7 +18,7 @@ export default function TicketsPage() {
         </p>
       </div>
 
-      <TicketsGrid />
+      <TicketsGrid initialTickets={tickets} proveedores={proveedores} />
     </div>
   );
 }

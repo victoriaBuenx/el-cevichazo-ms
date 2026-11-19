@@ -28,13 +28,11 @@ public class ExpenseTicket
     [MaxLength(500)]
     public string? Notes { get; set; }
 
-    [MaxLength(500)]
     public string? VoucherUrl { get; set; }
 
     [MaxLength(255)]
     public string? VoucherOriginalName { get; set; }
 
-    [MaxLength(500)]
     public string? TransferVoucherUrl { get; set; }
 
     [MaxLength(255)]
