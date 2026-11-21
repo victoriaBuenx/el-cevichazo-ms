@@ -93,6 +93,8 @@ builder.Services.AddScoped<UpdateExpenseTicketUseCase>();
 builder.Services.AddScoped<DeleteExpenseTicketUseCase>();
 builder.Services.AddScoped<GetServicesUseCase>();
 builder.Services.AddScoped<RegisterServicesUseCase>();
+builder.Services.AddScoped<UpdateServiceUseCase>();
+builder.Services.AddScoped<UpdateServiceStatusUseCase>();
 
 
 
