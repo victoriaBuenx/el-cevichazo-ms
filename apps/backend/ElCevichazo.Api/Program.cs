@@ -14,6 +14,8 @@ using ElCevichazo.Application.Suppliers.Interfaces;
 using ElCevichazo.Application.Suppliers.UseCases;
 using ElCevichazo.Application.ExpenseTickets.Interfaces;
 using ElCevichazo.Application.ExpenseTickets.UseCases;
+using ElCevichazo.Application.Services.Interfaces;
+using ElCevichazo.Application.Services.UseCases;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -73,6 +75,7 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<ISuppliersRepository, SupplierRepository>();
 builder.Services.AddScoped<IExpenseTicketRepository, ExpenseTicketRepository>();
+builder.Services.AddScoped<IServicesRepository, ServicesRepository>();
 
 builder.Services.AddScoped<LoginUseCase>();
 builder.Services.AddScoped<LogoutUseCase>();
@@ -88,6 +91,9 @@ builder.Services.AddScoped<GetExpenseTicketsUseCase>();
 builder.Services.AddScoped<RegisterExpenseTicketUseCase>();
 builder.Services.AddScoped<UpdateExpenseTicketUseCase>();
 builder.Services.AddScoped<DeleteExpenseTicketUseCase>();
+builder.Services.AddScoped<GetServicesUseCase>();
+builder.Services.AddScoped<RegisterServicesUseCase>();
+
 
 
 builder.Services.AddControllers();
