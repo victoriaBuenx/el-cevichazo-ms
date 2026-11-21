@@ -29,4 +29,15 @@ public class ServicesRepository : IServicesRepository
         await _dbContext.Services.AddAsync(service);
         await _dbContext.SaveChangesAsync();
     }
+    public async Task<Service?> GetByIdAsync(Guid id)
+    {
+        return await _dbContext.Services
+            .Include(s => s.Supplier)
+            .FirstOrDefaultAsync(s => s.Id == id);
+    }
+    public async Task UpdateAsync(Service service)
+    {
+        _dbContext.Services.Update(service);
+        await _dbContext.SaveChangesAsync();
+    }
 }
