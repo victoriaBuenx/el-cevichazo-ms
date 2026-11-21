@@ -117,6 +117,56 @@ namespace ElCevichazo.Infrastructure.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
+            modelBuilder.Entity("ElCevichazo.Domain.Entities.Service", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal?>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<DateOnly?>("NextDueDate")
+                        .HasColumnType("date");
+
+                    b.Property<int>("PaymentFrequency")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ReminderDaysBefore")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("ReminderEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("SupplierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SupplierId");
+
+                    b.ToTable("Services");
+                });
+
             modelBuilder.Entity("ElCevichazo.Domain.Entities.Supplier", b =>
                 {
                     b.Property<Guid>("Id")
@@ -220,9 +270,21 @@ namespace ElCevichazo.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("ElCevichazo.Domain.Entities.Service", b =>
+                {
+                    b.HasOne("ElCevichazo.Domain.Entities.Supplier", "Supplier")
+                        .WithMany("RestaurantServices")
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Supplier");
+                });
+
             modelBuilder.Entity("ElCevichazo.Domain.Entities.Supplier", b =>
                 {
                     b.Navigation("ExpenseTickets");
+
+                    b.Navigation("RestaurantServices");
                 });
 
             modelBuilder.Entity("ElCevichazo.Domain.Entities.User", b =>
